@@ -1,5 +1,4 @@
 using Core.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,15 +10,49 @@ namespace Infrastructure.Data
         {
         }
 
-        // public DbSet<Budget> Budgets { get; set; }
-        // public DbSet<Category> Categories { get; set; }
-        // public DbSet<ExportRequest> ExportRequests { get; set; }
-        // public DbSet<Notification> Notifications { get; set; }
-        // public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<PriceAlert> PriceAlerts { get; set; }
+        public DbSet<Coin> Coins { get; set; }
+        public DbSet<PriceHistory> PriceHistories { get; set; }
+        public DbSet<EmailNotification> EmailNotifications { get; set; }
 
-        public async Task<int> SaveChangesAsync()
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            return await base.SaveChangesAsync();
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<PriceAlert>()
+                .HasOne(pa => pa.User)
+                .WithMany(u => u.PriceAlerts)
+                .HasForeignKey(pa => pa.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PriceAlert>()
+                .HasOne(pa => pa.Coin)
+                .WithMany(c => c.PriceAlerts)
+                .HasForeignKey(pa => pa.CoinId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PriceHistory>()
+                .HasOne(ph => ph.Coin)
+                .WithMany(c => c.PriceHistories)
+                .HasForeignKey(ph => ph.CoinId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmailNotification>()
+                .HasOne(en => en.PriceAlert)
+                .WithMany(pa => pa.EmailNotifications)
+                .HasForeignKey(en => en.AlertId)
+                .OnDelete(DeleteBehavior.ClientNoAction);
+
+            modelBuilder.Entity<EmailNotification>()
+                .HasOne(en => en.User)
+                .WithMany(u => u.EmailNotifications)
+                .HasForeignKey(en => en.UserId)
+                .OnDelete(DeleteBehavior.ClientNoAction);
+        }
+
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

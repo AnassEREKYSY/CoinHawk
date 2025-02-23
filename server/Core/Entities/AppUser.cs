@@ -6,6 +6,7 @@ namespace Core.Entities
     {
         public string FirstName { get; set; }  = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public ICollection<PriceAlert> PriceAlerts { get; set; } 
+        public ICollection<PriceAlert> PriceAlerts { get; set; }
+        public ICollection<EmailNotification> EmailNotifications { get; set; }
     }
 }
