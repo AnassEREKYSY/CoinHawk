@@ -1,7 +1,6 @@
 using Infrastructure.Dtos;
-using Core.IServices;
 
-namespace Core.IServices
+namespace Infrastructure.IServices
 {
     public interface IUserService
     {

@@ -6,7 +6,8 @@ using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Services;
-using Core.IServices;
+using Infrastructure.IServices;
+using CoinGecko.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,10 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSingleton<CoinGeckoClient>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICoinService, CoinService>();
+
 
 builder.Services.AddControllers();
 
