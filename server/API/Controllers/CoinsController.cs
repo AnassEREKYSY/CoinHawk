@@ -9,7 +9,7 @@ namespace API.Controllers
     public class CoinsController(ICoinService _coinService) : ControllerBase
     {
 
-        [HttpGet("all")]
+        [HttpGet("get-all-coins")]
         public async Task<IActionResult> GetAllCoins()
         {
             var result = await _coinService.GetAllCoinsAsync();
@@ -19,7 +19,7 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("coin-data/{coinName}")]
+        [HttpGet("get-coin-data/{coinName}")]
         public async Task<IActionResult> GetCoinData(string coinName)
         {
             try
@@ -33,7 +33,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("coin-market-chart/{coinName}/market-chart")]
+        [HttpGet("get-coin-market-chart/{coinName}/market-chart")]
         public async Task<IActionResult> GetCoinMarketChart(string coinName, [FromQuery] int days)
         {
             try
@@ -48,7 +48,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("coin-details-info/{coinName}")]
+        [HttpGet("get-coin-details-info/{coinName}")]
         public async Task<IActionResult> GetCoinInfo(string coinName, [FromQuery] int days)
         {
             try
