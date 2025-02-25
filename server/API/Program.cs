@@ -23,6 +23,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 builder.Services.AddSingleton<CoinGeckoClient>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICoinService, CoinService>();
+builder.Services.AddScoped<IPriceAlertService, PriceAltertService>();
+builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+builder.Services.AddHostedService<PriceAlertChecker>();
 
 
 builder.Services.AddControllers();
