@@ -1,11 +1,13 @@
 using Infrastructure.Dtos;
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/coins")]
+    [Authorize]
     public class CoinsController(ICoinService _coinService) : ControllerBase
     {
 
