@@ -12,21 +12,26 @@ namespace Infrastructure.Services
 {
     public class NewsService(HttpClient _httpClient, IConfiguration _configuration) : INewsService
     {
-
-        public async Task<IEnumerable<NewsArticleDto>> GetNewsForCoinAsync(string coinName)
+        public async Task<NewsArticleDto> GetNewsForCoinAsync(string coinName)
         {
             var apiKey = _configuration["NewsAPI:ApiKey"];
-            var requestUrl = $"https://newsapi.org/v2/everything?q={coinName}&apiKey={apiKey}&sortBy=publishedAt";
-            
+            var encodedCoinName = Uri.EscapeDataString(coinName);
+            var requestUrl = $"https://newsapi.org/v2/everything?q={encodedCoinName}&apiKey={apiKey}&sortBy=publishedAt";
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "YourAppName/1.0");
             var response = await _httpClient.GetAsync(requestUrl);
+
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception("Failed to fetch news articles.");
             }
-            
+
             var result = await response.Content.ReadFromJsonAsync<NewsApiResponse>();
-            return result?.Articles;
+            var latestArticle = result?.Articles
+                .OrderByDescending(article => article.PublishedAt)
+                .FirstOrDefault(); 
+            return latestArticle;
         }
+
     }
 
 }

@@ -22,7 +22,7 @@ namespace API.Controllers
 
             try
             {
-                var alert = await _priceAlertService.CreatePriceAlertAsync(token, createAlertDto.CoinId, createAlertDto.TargetPrice);
+                var alert = await _priceAlertService.CreatePriceAlertAsync(token, createAlertDto.CoinName, createAlertDto.TargetPrice);
                 return Ok(alert);
             }
             catch (Exception ex)

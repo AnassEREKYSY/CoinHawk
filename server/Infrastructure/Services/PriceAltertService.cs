@@ -16,13 +16,14 @@ namespace Infrastructure.Services
     public class PriceAlertService(ApplicationContext _context,ICoinService _coinService,INewsService _newsService) : IPriceAlertService
     {
 
-        public async Task<PriceAlert> CreatePriceAlertAsync(string userToken, int coinId, decimal targetPrice)
+        public async Task<PriceAlert> CreatePriceAlertAsync(string userToken, string coinName, decimal targetPrice)
         {
             var userId = ExtractUserIdFromToken(userToken);
+            var coin = await _coinService.GetCoinDataByNameAsync(coinName);
             var priceAlert = new PriceAlert
             {
                 UserId = userId,
-                CoinId = coinId,
+                CoinName = coin.Name,
                 TargetPrice = targetPrice,
                 AlertSetAt = DateTime.UtcNow,
                 IsNotified = false
@@ -51,7 +52,7 @@ namespace Infrastructure.Services
                 {
                     Id = alert.Id,
                     UserId = alert.UserId,
-                    CoinId = alert.CoinId.ToString(),
+                    CoinName = alert.CoinName,
                     TargetPrice = alert.TargetPrice,
                     AlertSetAt = alert.AlertSetAt,
                     AlertTriggeredAt = alert.AlertTriggeredAt,
@@ -84,7 +85,7 @@ namespace Infrastructure.Services
             {
                 Id = alert.Id,
                 UserId = alert.UserId,
-                CoinId = alert.CoinId.ToString(),
+                CoinName = alert.CoinName,
                 TargetPrice = alert.TargetPrice,
                 AlertSetAt = alert.AlertSetAt,
                 AlertTriggeredAt = alert.AlertTriggeredAt,
@@ -109,7 +110,7 @@ namespace Infrastructure.Services
             foreach (var coin in followedCoins)
             {
                 var articles = await _newsService.GetNewsForCoinAsync(coin);
-                newsArticles.AddRange(articles);
+                newsArticles.Add(articles);
             }
 
             return newsArticles;

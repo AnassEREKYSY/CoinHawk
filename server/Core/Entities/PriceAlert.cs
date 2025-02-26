@@ -5,6 +5,7 @@ namespace Core.Entities
         public int Id { get; set; }        
         public string UserId { get; set; }
         public int CoinId { get; set; }
+        public string CoinName { get; set; }
         public decimal TargetPrice { get; set; }
         public DateTime AlertSetAt { get; set; }
         public DateTime? AlertTriggeredAt { get; set; } 

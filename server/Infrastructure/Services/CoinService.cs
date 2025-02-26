@@ -8,12 +8,13 @@ namespace Infrastructure.Services
     {
         public async Task<IEnumerable<CoinDto>> GetAllCoinsAsync()
         {
-            var coinListResult = await _client.CoinsClient.GetCoinList() 
-                ?? throw new Exception("Failed to retrieve the coin list.");
-
-            var tasks = coinListResult.Select(c => GetCoinDataByNameAsync(c.Name));            
-            var coinDtos = await Task.WhenAll(tasks);
-            return coinDtos;
+            var coinListResult = await _client.CoinsClient.GetCoinList() ?? throw new Exception("Failed to retrieve the coin list.");
+            return coinListResult.Select(c => new CoinDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Symbol = c.Symbol,
+            });
         }
 
         public async Task<CoinDto> GetCoinDataByNameAsync(string coinName)
@@ -41,7 +42,6 @@ namespace Infrastructure.Services
                 
             return prices;
         }
-
 
         public async Task<CoinDto> GetCoinInfoAsync(string coinName, int days)
         {
