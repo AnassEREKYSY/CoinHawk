@@ -18,11 +18,14 @@ namespace Infrastructure.Services
 
         public async Task<PriceAlert> CreatePriceAlertAsync(string userToken, string coinName, decimal targetPrice)
         {
-            var userId = ExtractUserIdFromToken(userToken);
+            var userEmail = ExtractUserIdFromToken(userToken);
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.");
             var coin = await _coinService.GetCoinDataByNameAsync(coinName);
+            
             var priceAlert = new PriceAlert
             {
-                UserId = userId,
+                UserId = user.Id, 
                 CoinName = coin.Name,
                 TargetPrice = targetPrice,
                 AlertSetAt = DateTime.UtcNow,
@@ -34,6 +37,8 @@ namespace Infrastructure.Services
 
             return priceAlert;
         }
+
+
 
         public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
         {
@@ -120,6 +125,7 @@ namespace Infrastructure.Services
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
+            
             var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "sub");
 
             if (userIdClaim == null)
@@ -129,5 +135,6 @@ namespace Infrastructure.Services
 
             return userIdClaim.Value;
         }
+
     }
 }

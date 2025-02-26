@@ -7,7 +7,6 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/price-alerts")]
-    [Authorize]
     public class PriceAlertsController(IPriceAlertService _priceAlertService) : ControllerBase
     {
 
@@ -98,12 +97,15 @@ namespace API.Controllers
             {
                 return null;
             }
+
             var token = authHeader.ToString();
-            if (token.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
+            if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
-                token = token.Substring("Bearer ".Length).Trim();
+                return token.Substring("Bearer ".Length).Trim();
             }
+
             return token;
         }
+
     }
 }
