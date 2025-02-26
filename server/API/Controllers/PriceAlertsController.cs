@@ -73,6 +73,26 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("coin-news")]
+        public async Task<IActionResult> GetNewsForFollowedCoins()
+        {
+            var token = ExtractJwtToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Authorization header missing or invalid.");
+            }
+
+            try
+            {
+                var newsArticles = await _priceAlertService.GetNewsForFollowedCoinsAsync(token);
+                return Ok(newsArticles);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         private string ExtractJwtToken()
         {
             if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
