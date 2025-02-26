@@ -69,5 +69,26 @@ namespace Infrastructure.Services
             coinData.MarketChart = await this.GetMarketChartByCoinIdAsync(coinData.Id, days);
             return coinData;
         }
+
+        public async Task<IEnumerable<CoinDto>> GetTrendingCoinsAsync(int count = 10)
+        {
+            var allCoins = await GetAllCoinsAsync();
+
+            var trendingCoins = allCoins
+                .OrderBy(c => c.MarketCapRank)
+                .Take(count)
+                .ToList();
+
+            var result = new List<CoinDto>();
+
+            foreach (var coin in trendingCoins)
+            {
+                var coinData = await GetCoinInfoAsync(coin.Name, 7);
+                result.Add(coinData);
+            }
+
+            return result;
+        }
+
     }
 }

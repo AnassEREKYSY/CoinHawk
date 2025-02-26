@@ -63,6 +63,14 @@ namespace API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [HttpGet("get-trending-coins")]
+        public async Task<IActionResult> GetTrendingCoins()
+        {
+            var trendingCoins = await _coinService.GetTrendingCoinsAsync(10);
+            return Ok(trendingCoins);
+        }
+
         
     }
 }

@@ -64,6 +64,25 @@ namespace Infrastructure.Services
             return await GenerateAuthenticationResultForUserAsync(user);
         }
 
+        public async Task<UserProfileDto> GetUserProfileAsync(string token)
+        {
+            var userId = ExtractUserIdFromToken(token);
+            var user = await _userManager.FindByIdAsync(userId);
+            
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            return new UserProfileDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email
+            };
+        }
+
         private async Task<AuthenticationResultDto> GenerateAuthenticationResultForUserAsync(AppUser user)
         {
             var jwtSettings = _configuration.GetSection("Jwt");

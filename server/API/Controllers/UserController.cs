@@ -1,6 +1,7 @@
 using Infrastructure.Dtos;
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -26,5 +27,41 @@ namespace API.Controllers
                 return BadRequest(result);
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var token = ExtractJwtToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Authorization header missing or invalid.");
+            }
+            try
+            {
+                var profile = await _userService.GetUserProfileAsync(token);
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        private string ExtractJwtToken()
+        {
+            if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                return null;
+            }
+            var token = authHeader.ToString();
+            if (token.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
+            {
+                token = token.Substring("Bearer ".Length).Trim();
+            }
+            return token;
+        }
+
     }
 }
