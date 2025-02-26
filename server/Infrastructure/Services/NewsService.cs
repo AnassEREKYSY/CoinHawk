@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Services
 {
-    public class NewsServiceHttpClient _httpClient, IConfiguration _configuration : INewsService
+    public class NewsService(HttpClient _httpClient, IConfiguration _configuration) : INewsService
     {
 
         public async Task<IEnumerable<NewsArticleDto>> GetNewsForCoinAsync(string coinName)

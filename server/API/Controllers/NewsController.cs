@@ -1,7 +1,5 @@
-using Infrastructure.Dtos;
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers

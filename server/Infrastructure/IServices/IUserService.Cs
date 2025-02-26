@@ -6,6 +6,6 @@ namespace Infrastructure.IServices
     {
         Task<AuthenticationResultDto> RegisterAsync(RegisterDto request);
         Task<AuthenticationResultDto> LoginAsync(LoginDto request);
-        Task<UserProfileDto> GetUserProfileAsync(string token)
+        Task<UserProfileDto> GetUserProfileAsync(string token);
     }
 }

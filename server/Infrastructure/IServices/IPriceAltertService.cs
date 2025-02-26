@@ -1,5 +1,5 @@
 using Core.Entities;
-using Infrastructure.Dtos
+using Infrastructure.Dtos;
 
 namespace Infrastructure.IServices
 {

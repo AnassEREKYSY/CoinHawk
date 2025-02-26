@@ -8,15 +8,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Infrastructure.IServices;
 using CoinGecko.Clients;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
-    public class PriceAlertService(ApplicationDbContext _context,ICoinService _coinService,INewsService _newsService) : IPriceAlertService
+    public class PriceAlertService(ApplicationContext _context,ICoinService _coinService,INewsService _newsService) : IPriceAlertService
     {
 
         public async Task<PriceAlert> CreatePriceAlertAsync(string userToken, int coinId, decimal targetPrice)
         {
-            var userId = ExtractUserIdFromToken(token);
+            var userId = ExtractUserIdFromToken(userToken);
             var priceAlert = new PriceAlert
             {
                 UserId = userId,

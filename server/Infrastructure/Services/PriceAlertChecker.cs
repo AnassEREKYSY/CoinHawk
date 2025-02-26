@@ -33,7 +33,7 @@ namespace Infrastructure.Services
                 {
                     using (var scope = _scopeFactory.CreateScope())
                     {
-                        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
                         var coinService = scope.ServiceProvider.GetRequiredService<ICoinService>();
                         var emailService = scope.ServiceProvider.GetRequiredService<IEmailNotificationService>();
 

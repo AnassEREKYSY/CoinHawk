@@ -1,4 +1,4 @@
-using Infrastructure.Dtos
+using Infrastructure.Dtos;
 
 namespace Infrastructure.Responses
 {

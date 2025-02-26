@@ -1,7 +1,6 @@
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Infrastructure.Dtos
+using Infrastructure.Dtos;
 using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers

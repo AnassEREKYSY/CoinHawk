@@ -1,13 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Infrastructure.Dtos;
-using Core.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using System.Net.Mail;
 using Infrastructure.IServices;
-using CoinGecko.Clients;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services
 {
@@ -19,10 +12,10 @@ namespace Infrastructure.Services
             try
             {
                 var subject = $"📢 Price Alert: {coinName} has reached ${currentPrice}!";
-                var body = $"Hello,\n\nYour price alert for {coinName} has been triggered. The current price is ${currentPrice}, reaching your target of ${targetPrice}.\n\nBest regards,\CoinHawk Team";
+                var body = $"Hello,\n\nYour price alert for {coinName} has been triggered. The current price is ${currentPrice}, reaching your target of ${targetPrice}.\n\nBest regards,\nCoinHawk Team";
                 using var smtpClient = new SmtpClient("smtp.gmail.com")
                 {
-                    Port = 587, // Use 587 for TLS (recommended) or 465 for SSL
+                    Port = 587,
                     Credentials = new System.Net.NetworkCredential("myemail@gmail.com", "abcd efgh ijkl mnop"),
                     EnableSsl = true
                 };

@@ -1,11 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Infrastructure.Dtos;
-using Core.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Infrastructure.IServices;
 using CoinGecko.Clients;
 
@@ -13,74 +6,56 @@ namespace Infrastructure.Services
 {
     public class CoinService(CoinGeckoClient _client) : ICoinService
     {
-
         public async Task<IEnumerable<CoinDto>> GetAllCoinsAsync()
         {
-            var coinListResult = await _client.CoinsClient.GetCoinListAsync();
-            if (coinListResult.Success)
-            {
-                return coinListResult.Data.Select(c => new CoinDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    ApiSymbol = c.ApiSymbol,
-                    Symbol = c.Symbol,
-                    MarketCapRank = c.MarketCapRank ?? 0,
-                    Thumb = c.Thumb,
-                    Large = c.Large
-                });
-            }
-            throw new Exception("Failed to retrieve the coin list.");
+            var coinListResult = await _client.CoinsClient.GetCoinList() 
+                ?? throw new Exception("Failed to retrieve the coin list.");
+
+            var tasks = coinListResult.Select(c => GetCoinDataByNameAsync(c.Name));            
+            var coinDtos = await Task.WhenAll(tasks);
+            return coinDtos;
         }
 
         public async Task<CoinDto> GetCoinDataByNameAsync(string coinName)
         {
-            var coins = await this.GetAllCoinsAsync();
-            var coin = coins.FirstOrDefault(c => string.Equals(c.Name, coinName, StringComparison.OrdinalIgnoreCase));
-            if (coin != null)
+            var coins = await GetAllCoinsAsync();
+            var coin = coins.FirstOrDefault(c => string.Equals(c.Name, coinName, StringComparison.OrdinalIgnoreCase)) ?? throw new Exception($"Coin with name '{coinName}' not found.");
+            var coinData = await _client.CoinsClient.GetAllCoinDataWithId(coin.Id) ?? throw new Exception($"Failed to retrieve data for coin ID: {coin.Id}");
+            return new CoinDto
             {
-                var coinDataResult = await _client.CoinsClient.GetAllCoinDataWithIdAsync(coin.Id);
-                if (coinDataResult.Success)
-                {
-                    var data = coinDataResult.Data;
-                    coin.CurrentPrice = data.MarketData.CurrentPrice.GetValueOrDefault("usd", 0);
-                    coin.MarketCap = data.MarketData.MarketCap.GetValueOrDefault("usd", 0);
-                    coin.TotalVolume = data.MarketData.TotalVolume.GetValueOrDefault("usd", 0);
-                    return coin;
-                }
-                throw new Exception($"Failed to retrieve data for coin ID: {coin.Id}");
-            }
-            throw new Exception($"Coin with name '{coinName}' not found.");
+                Id = coinData.Id,
+                Name = coinData.Name,
+                Symbol = coinData.Symbol,
+                CurrentPrice = coinData.MarketData?.CurrentPrice.GetValueOrDefault("usd", 0) ?? 0,
+                MarketCap = coinData.MarketData?.MarketCap.GetValueOrDefault("usd", 0) ?? 0,
+                TotalVolume = coinData.MarketData?.TotalVolume.GetValueOrDefault("usd", 0) ?? 0
+            };
         }
 
         public async Task<List<decimal[]>> GetMarketChartByCoinIdAsync(string coinId, int days)
         {
-            var marketChartResult = await _client.CoinsClient.GetMarketChartsByCoinIdAsync(coinId, "usd", days);
-            if (marketChartResult.Success)
-            {
-                return marketChartResult.Data.Prices;
-            }
-            throw new Exception("Failed to retrieve market chart data.");
+            var marketChartResult = await _client.CoinsClient.GetMarketChartsByCoinId(coinId, "usd", days.ToString()) ?? throw new Exception("Failed to retrieve market chart data.");
+            var prices = marketChartResult.Prices
+                .Select(innerArray => innerArray.Select(x => x ?? 0M).ToArray())
+                .ToList();
+                
+            return prices;
         }
 
-         public async Task<CoinDto> GetCoinInfoAsync(string coinName, int days)
+
+        public async Task<CoinDto> GetCoinInfoAsync(string coinName, int days)
         {
-            var coinData = await this.GetCoinDataByNameAsync(coinName);
-            coinData.MarketChart = await this.GetMarketChartByCoinIdAsync(coinData.Id, days);
+            var coinData = await GetCoinDataByNameAsync(coinName);
+            coinData.MarketChart = await GetMarketChartByCoinIdAsync(coinData.Id, days);
             return coinData;
         }
 
         public async Task<IEnumerable<CoinDto>> GetTrendingCoinsAsync(int count = 10)
         {
             var allCoins = await GetAllCoinsAsync();
-
-            var trendingCoins = allCoins
-                .OrderBy(c => c.MarketCapRank)
-                .Take(count)
-                .ToList();
+            var trendingCoins = allCoins.OrderBy(c => c.MarketCapRank).Take(count).ToList();
 
             var result = new List<CoinDto>();
-
             foreach (var coin in trendingCoins)
             {
                 var coinData = await GetCoinInfoAsync(coin.Name, 7);
@@ -89,6 +64,5 @@ namespace Infrastructure.Services
 
             return result;
         }
-
     }
 }

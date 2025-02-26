@@ -118,5 +118,19 @@ namespace Infrastructure.Services
                 Token = tokenHandler.WriteToken(token)
             };
         }
+
+        private string ExtractUserIdFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "sub");
+
+            if (userIdClaim == null)
+            {
+                throw new Exception("User identifier not found in token.");
+            }
+
+            return userIdClaim.Value;
+        }
     }
 }
