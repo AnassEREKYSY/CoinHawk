@@ -3,6 +3,7 @@ import { environment } from '../../../envirnoments/envirnoments.development';
 import { HttpClient } from '@angular/common/http';
 import { LoginDto } from '../Dtos/LoginDto';
 import { Observable } from 'rxjs';
+import { RegisterDto } from '../Dtos/RegisterDto';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,11 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(request: LoginDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}api/users/login`, request);
+    return this.http.post<any>(`${this.apiUrl}users/login`, request);
+  }
+
+  register(request: RegisterDto): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}users/register`, request);
   }
 
   setToken(token: string): void {

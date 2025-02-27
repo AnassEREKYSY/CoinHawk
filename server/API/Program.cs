@@ -14,6 +14,15 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policyBuilder => policyBuilder
+            .WithOrigins("http://localhost:4200") 
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()); 
+});
 builder.Services.AddDbContext<ApplicationContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -72,7 +81,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 

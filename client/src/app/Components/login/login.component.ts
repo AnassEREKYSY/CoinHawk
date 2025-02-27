@@ -1,28 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../Core/Services/auth.service'; 
 import { Router } from '@angular/router';
+import { SnackBarService } from '../../Core/Services/snack-bar.service';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  imports: [ReactiveFormsModule,],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup | undefined;
+  loginForm!: FormGroup;
   errorMessage: string = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private snackBarService: SnackBarService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]], // Email validation
-      password: ['', [Validators.required, Validators.minLength(6)]], // Password validation
+      email: ['', [Validators.required, Validators.email]], 
+      password: ['', [Validators.required, Validators.minLength(6)]], 
     });
   }
 
@@ -36,12 +38,17 @@ export class LoginComponent implements OnInit {
     this.authService.login(loginRequest).subscribe(
       (response) => {
         this.authService.setToken(response.token);
-        this.router.navigate(['/profile']); // Redirect to profile
+        this.router.navigate(['/dashboard']); 
+        this.snackBarService.success("You're logged successfully")
       },
-      (error) => {
-        this.errorMessage = 'Login failed: ' + error.message;
+      () => {
+        this.snackBarService.error('Login failed try again ')
       }
     );
+  }
+
+  RedirectToRegister(){
+    this.router.navigate(['/register']); 
   }
   
 }

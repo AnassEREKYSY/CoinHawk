@@ -1,1 +1,13 @@
-<p>register works!</p>
+<div class="login-container">
+    <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d208683fad7ae6f2ce06c76d0a56.png" alt="Coin Logo" class="coin-image" />
+    <form class="login-form" [formGroup]="RegisterForm" (ngSubmit)="register()">
+      <input type="text" placeholder="FirstName" class="input-field" formControlName="firstName" />
+      <input type="text" placeholder="LastName" class="input-field" formControlName="lastName" />
+      <input type="email" placeholder="Email" class="input-field" formControlName="email" />
+      <input type="password" placeholder="Password" class="input-field" formControlName="password" />
+      <div class="button-container">
+        <button class="btn" type="submit">Register</button>
+      </div>
+    </form>
+  </div>
+  
