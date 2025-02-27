@@ -17,6 +17,17 @@ namespace Infrastructure.Services
             });
         }
 
+        public async Task<IEnumerable<CoinDto>> GetFollowedCoins(string userToken)
+        {
+            var coinListResult = await _client.CoinsClient.GetCoinList() ?? throw new Exception("Failed to retrieve the coin list.");
+            return coinListResult.Select(c => new CoinDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Symbol = c.Symbol,
+            });
+        }
+        
         public async Task<CoinDto> GetCoinDataByNameAsync(string coinName)
         {
             var coins = await GetAllCoinsAsync();
@@ -29,7 +40,9 @@ namespace Infrastructure.Services
                 Symbol = coinData.Symbol,
                 CurrentPrice = coinData.MarketData?.CurrentPrice.GetValueOrDefault("usd", 0) ?? 0,
                 MarketCap = coinData.MarketData?.MarketCap.GetValueOrDefault("usd", 0) ?? 0,
-                TotalVolume = coinData.MarketData?.TotalVolume.GetValueOrDefault("usd", 0) ?? 0
+                TotalVolume = coinData.MarketData?.TotalVolume.GetValueOrDefault("usd", 0) ?? 0,
+                Thumb = coinData.Image?.Thumb?.ToString() ?? string.Empty, 
+                Large = coinData.Image?.Large?.ToString() ?? string.Empty
             };
         }
 

@@ -30,7 +30,6 @@ namespace API.Controllers
             }
         }
 
-
         [HttpGet("user-alerts")]
         public async Task<IActionResult> GetAllUserAlerts()
         {

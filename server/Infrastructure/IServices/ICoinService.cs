@@ -9,5 +9,6 @@ namespace Infrastructure.IServices
         Task<List<decimal[]>> GetMarketChartByCoinIdAsync(string coinId, int days);
         Task<CoinDto> GetCoinInfoAsync(string coinName, int days);
         Task<IEnumerable<CoinDto>> GetTrendingCoinsAsync(int count = 10);
+        Task<IEnumerable<CoinDto>> GetFollowedCoins(string userToken);
     }
 }

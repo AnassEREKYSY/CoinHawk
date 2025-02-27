@@ -47,37 +47,41 @@ namespace Infrastructure.Services
             return priceAlert;
         }
 
-        public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
-        {
-            var userEmail = ExtractUserIdFromToken(token);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.");
+public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
+{
+    var userEmail = ExtractUserIdFromToken(token);
+    Console.WriteLine($"Extracted User Email from Token: {userEmail}");
 
-            var alerts = await _context.PriceAlerts
-                .Where(a => a.UserId == user.Id)
-                .ToListAsync();
+    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+    
+    if (user == null)
+    {
+        Console.WriteLine("User not found in database.");
+        throw new Exception("User not found in database.");
+    }
 
-            var result = new List<PriceAlertDto>();
+    Console.WriteLine($"User found: {user.Id} (Email: {user.Email})");
 
-            foreach (var alert in alerts)
-            {
-                var coinInfo = await _coinService.GetCoinInfoAsync(alert.CoinName, 7);
-                var alertDto = new PriceAlertDto
-                {
-                    Id = alert.Id,
-                    UserId = alert.UserId,
-                    CoinName = alert.CoinName,
-                    TargetPrice = alert.TargetPrice,
-                    AlertSetAt = alert.AlertSetAt,
-                    AlertTriggeredAt = alert.AlertTriggeredAt,
-                    IsNotified = alert.IsNotified,
-                    Coin = coinInfo
-                };
+    var alerts = await _context.PriceAlerts
+        .Where(a => a.UserId == user.Id)
+        .ToListAsync();
 
-                result.Add(alertDto);
-            }
+    Console.WriteLine($"Total alerts found: {alerts.Count}");
 
-            return result;
-        }
+    var result = alerts.Select(alert => new PriceAlertDto
+    {
+        Id = alert.Id,
+        UserId = alert.UserId,
+        CoinName = alert.CoinName,
+        TargetPrice = alert.TargetPrice,
+        AlertSetAt = alert.AlertSetAt,
+        AlertTriggeredAt = alert.AlertTriggeredAt,
+        IsNotified = alert.IsNotified,
+    }).ToList();
+
+    return result;
+}
+
 
         public async Task<PriceAlertDto> GetAlertForUserAsync(int alertId, string token)
         {
