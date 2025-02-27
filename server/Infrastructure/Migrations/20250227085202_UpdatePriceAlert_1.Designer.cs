@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20250227085202_UpdatePriceAlert_1")]
+    partial class UpdatePriceAlert_1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,6 +98,47 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Entities.Coin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Change24h")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CoinGeckoId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("CurrentPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("MarketCap")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Volume")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Coins");
+                });
+
             modelBuilder.Entity("Core.Entities.EmailNotification", b =>
                 {
                     b.Property<int>("Id")
@@ -140,6 +184,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("AlertTriggeredAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CoinId")
+                        .HasColumnType("int");
+
                     b.Property<string>("CoinName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -155,6 +202,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CoinId");
 
                     b.HasIndex("UserId");
 
@@ -179,6 +228,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CoinId");
 
                     b.ToTable("PriceHistories");
                 });
@@ -337,6 +388,10 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.PriceAlert", b =>
                 {
+                    b.HasOne("Core.Entities.Coin", null)
+                        .WithMany("PriceAlerts")
+                        .HasForeignKey("CoinId");
+
                     b.HasOne("Core.Entities.AppUser", "User")
                         .WithMany("PriceAlerts")
                         .HasForeignKey("UserId")
@@ -344,6 +399,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.PriceHistory", b =>
+                {
+                    b.HasOne("Core.Entities.Coin", "Coin")
+                        .WithMany("PriceHistories")
+                        .HasForeignKey("CoinId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Coin");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -402,6 +468,13 @@ namespace Infrastructure.Migrations
                     b.Navigation("EmailNotifications");
 
                     b.Navigation("PriceAlerts");
+                });
+
+            modelBuilder.Entity("Core.Entities.Coin", b =>
+                {
+                    b.Navigation("PriceAlerts");
+
+                    b.Navigation("PriceHistories");
                 });
 
             modelBuilder.Entity("Core.Entities.PriceAlert", b =>

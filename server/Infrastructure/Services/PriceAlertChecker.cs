@@ -38,7 +38,6 @@ namespace Infrastructure.Services
                         var emailService = scope.ServiceProvider.GetRequiredService<IEmailNotificationService>();
 
                         var alerts = await dbContext.PriceAlerts
-                            .Include(a => a.Coin)
                             .Include(a => a.User)
                             .Where(a => !a.IsNotified)
                             .ToListAsync(stoppingToken);
@@ -47,7 +46,7 @@ namespace Infrastructure.Services
                         {
                             try
                             {
-                                var coinInfo = await coinService.GetCoinInfoAsync(alert.Coin.Name, 1); 
+                                var coinInfo = await coinService.GetCoinInfoAsync(alert.CoinName, 1); 
                                 if (coinInfo.CurrentPrice >= alert.TargetPrice)
                                 {
                                     await emailService.SendPriceAlertEmailAsync(

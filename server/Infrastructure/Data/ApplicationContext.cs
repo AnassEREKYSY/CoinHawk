@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data
 {
-    public class ApplicationContext : IdentityDbContext<AppUser>
+    public class ApplicationContext(DbContextOptions<ApplicationContext> options) : IdentityDbContext<AppUser>(options)
     {
-        public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
-        {
-        }
-
         public DbSet<PriceAlert> PriceAlerts { get; set; }
-        public DbSet<Coin> Coins { get; set; }
         public DbSet<PriceHistory> PriceHistories { get; set; }
         public DbSet<EmailNotification> EmailNotifications { get; set; }
 
@@ -23,18 +18,6 @@ namespace Infrastructure.Data
                 .HasOne(pa => pa.User)
                 .WithMany(u => u.PriceAlerts)
                 .HasForeignKey(pa => pa.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PriceAlert>()
-                .HasOne(pa => pa.Coin)
-                .WithMany(c => c.PriceAlerts)
-                .HasForeignKey(pa => pa.CoinId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PriceHistory>()
-                .HasOne(ph => ph.Coin)
-                .WithMany(c => c.PriceHistories)
-                .HasForeignKey(ph => ph.CoinId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<EmailNotification>()

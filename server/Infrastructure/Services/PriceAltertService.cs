@@ -33,26 +33,34 @@ namespace Infrastructure.Services
             };
 
             _context.PriceAlerts.Add(priceAlert);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                throw;
+            }
 
             return priceAlert;
         }
 
-
-
         public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
         {
-            var userId = ExtractUserIdFromToken(token);
+            var userEmail = ExtractUserIdFromToken(token);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.");
+
             var alerts = await _context.PriceAlerts
-                .Include(a => a.Coin)
-                .Where(a => a.UserId == userId)
+                .Where(a => a.UserId == user.Id)
                 .ToListAsync();
 
             var result = new List<PriceAlertDto>();
 
             foreach (var alert in alerts)
             {
-                var coinInfo = await _coinService.GetCoinInfoAsync(alert.Coin.Name, 7);
+                var coinInfo = await _coinService.GetCoinInfoAsync(alert.CoinName, 7);
                 var alertDto = new PriceAlertDto
                 {
                     Id = alert.Id,
@@ -75,16 +83,14 @@ namespace Infrastructure.Services
         {
             var userId = ExtractUserIdFromToken(token);
 
-            var alert = await _context.PriceAlerts
-                .Include(a => a.Coin)
-                .FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == userId);
+            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == userId);
 
             if (alert == null)
             {
                 throw new Exception("Alert not found or you are not authorized to access this alert.");
             }
 
-            var coinInfo = await _coinService.GetCoinInfoAsync(alert.Coin.Name, 7);
+            var coinInfo = await _coinService.GetCoinInfoAsync(alert.CoinName, 7);
 
             var alertDto = new PriceAlertDto
             {
