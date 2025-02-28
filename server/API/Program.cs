@@ -69,8 +69,8 @@ builder.Services.AddControllers(options =>
 })
 .AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-    options.JsonSerializerOptions.MaxDepth = 32;
+    // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    // options.JsonSerializerOptions.MaxDepth = 32;
 });
 
 // 7) Swagger

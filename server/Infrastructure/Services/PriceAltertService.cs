@@ -124,19 +124,11 @@ namespace Infrastructure.Services
         public async Task<IEnumerable<CoinDto>> ExtractFollowedCoinsFromAlerts(string userToken)
         {
             var alerts = await GetAllAlertsForUserAsync(userToken);
-            var coinNames = alerts.Select(alert => alert.CoinName).Distinct().ToList();
-
-            var tasks = new List<Task<CoinDto>>();
-            foreach (var coinName in coinNames)
-            {
-                tasks.Add(Task.Delay(300)
-                    .ContinueWith(_ => _coinService.GetCoinDataByNameAsync(coinName))
-                    .Unwrap());
-            }
-
-            var followedCoins = (await Task.WhenAll(tasks)).ToList();
-            return followedCoins;
+            var coinNames = alerts.Select(a => a.CoinName).Distinct().ToList();
+            var coinsData = await _coinService.GetMultipleCoinsDataAsync(coinNames);
+            return coinsData;
         }
+
 
         private string ExtractUserIdFromToken(string token)
         {

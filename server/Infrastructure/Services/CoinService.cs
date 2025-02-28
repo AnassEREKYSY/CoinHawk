@@ -29,7 +29,7 @@ namespace Infrastructure.Services
 
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(coinDtos), options);
 
@@ -65,7 +65,7 @@ namespace Infrastructure.Services
             };
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(coinDto), options);
 
@@ -96,7 +96,7 @@ namespace Infrastructure.Services
 
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(prices), options);
             return prices;
@@ -125,5 +125,57 @@ namespace Infrastructure.Services
 
             return result;
         }
+    
+        public async Task<List<CoinDto>> GetMultipleCoinsDataAsync(IEnumerable<string> coinNames)
+        {
+            var uniqueNames = coinNames
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.ToLowerInvariant().Trim())
+                .Distinct()
+                .ToList();
+
+            if (uniqueNames.Count == 0)
+                return [];
+
+            var cacheKey = $"multiple-coins:{string.Join(",", uniqueNames)}";
+            var cachedString = await _cache.GetStringAsync(cacheKey);
+            if (!string.IsNullOrEmpty(cachedString))
+            {
+                return JsonSerializer.Deserialize<List<CoinDto>>(cachedString);
+            }
+            var markets = await _client.CoinsClient.GetCoinMarkets(
+                vsCurrency: "usd",
+                ids: uniqueNames.ToArray(),
+                order: "market_cap_desc",
+                perPage: 250,
+                page: 1,
+                sparkline: false,
+                priceChangePercentage: "", 
+                category: "" 
+            );
+            var result = markets.Select(m => new CoinDto
+            {
+                Id = m.Id,
+                Name = m.Name,
+                Symbol = m.Symbol,
+                CurrentPrice = m.CurrentPrice ?? 0,
+                MarketCap = m.MarketCap ?? 0,
+                TotalVolume = m.TotalVolume ?? 0,
+                Thumb = m.Image.ToString(),
+                Large = m.Image.ToString(), 
+                MarketCapRank = (int)(m.MarketCapRank ?? 0)
+            }).ToList();
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            await _cache.SetStringAsync(
+                cacheKey, 
+                JsonSerializer.Serialize(result), 
+                options
+            );
+            return result;
+        }
+
     }
 }
