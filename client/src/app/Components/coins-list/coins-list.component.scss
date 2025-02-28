@@ -5,16 +5,14 @@ $dark-gray: #121212;
 $modal-bg: rgba(0, 0, 0, 0.7);
 
 .coins-container {
-  width: 90%;
+  box-sizing: border-box;
   min-height: 100vh;
-  padding: 40px;
   background: $dark-gray;
   color: white;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  align-items: start;
+  padding: 40px;
 }
 
 .flex {
@@ -27,10 +25,9 @@ $modal-bg: rgba(0, 0, 0, 0.7);
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 50px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 30px;
   width: 100%;
-  max-width: 1200px;
   justify-content: center;
 }
 

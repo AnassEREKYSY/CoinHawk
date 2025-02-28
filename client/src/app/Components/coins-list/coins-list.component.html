@@ -7,7 +7,7 @@
       No followed coins.
     </div>
   
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
       <app-coin 
         *ngFor="let coin of coinsData" 
         [coin]="coin"
@@ -15,7 +15,7 @@
       </app-coin>
     </div>
   
-    <div *ngIf="isLoadingNewData" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+    <div *ngIf="isLoadingNewData" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
       <div class="loading-card" *ngFor="let _ of [1, 2, 3, 4]">
         <div class="loading-image"></div>
         <div class="loading-text"></div>

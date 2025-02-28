@@ -9,14 +9,15 @@ $black-line: #000;
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s ease-in-out;
-  
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.06);
+  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+
   &:hover {
     transform: scale(1.01);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.10);
   }
 }
+
 
 .coin-image {
   width: 100%;
