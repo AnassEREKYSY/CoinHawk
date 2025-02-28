@@ -68,26 +68,6 @@ namespace API.Controllers
             return Ok(trendingCoins);
         }
 
-        [HttpGet("get-followed-coins")]
-        public async Task<IActionResult> GetFollowedCoins()
-        {
-            var token = ExtractJwtToken();
-            if (string.IsNullOrEmpty(token))
-            {
-                return Unauthorized("Authorization header missing or invalid.");
-            }
-
-            try
-            {
-                var followedCoins = await _coinService.GetFollowedCoins(token);
-                return Ok(followedCoins);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         private string ExtractJwtToken()
         {
             if (!Request.Headers.TryGetValue("Authorization", out var authHeader))

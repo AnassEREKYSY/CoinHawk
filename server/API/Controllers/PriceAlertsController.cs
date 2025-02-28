@@ -1,7 +1,6 @@
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Dtos;
-using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -63,6 +62,26 @@ namespace API.Controllers
             {
                 var alert = await _priceAlertService.GetAlertForUserAsync(alertId, token);
                 return Ok(alert);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-followed-coins")]
+        public async Task<IActionResult> GetFollowedCoins()
+        {
+            var token = ExtractJwtToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Authorization header missing or invalid.");
+            }
+
+            try
+            {
+                var followedCoins = await _priceAlertService.ExtractFollowedCoinsFromAlerts(token);
+                return Ok(followedCoins);
             }
             catch (Exception ex)
             {

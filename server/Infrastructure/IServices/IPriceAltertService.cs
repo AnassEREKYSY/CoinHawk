@@ -9,5 +9,6 @@ namespace Infrastructure.IServices
         Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token);
         Task<PriceAlertDto> GetAlertForUserAsync(int alertId, string token);
         Task<IEnumerable<NewsArticleDto>> GetNewsForFollowedCoinsAsync(string token);
+        Task<IEnumerable<CoinDto>> ExtractFollowedCoinsFromAlerts(string userToken);
     }
 }

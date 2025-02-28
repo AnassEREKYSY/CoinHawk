@@ -1,13 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Infrastructure.Dtos;
 using Core.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Infrastructure.IServices;
-using CoinGecko.Clients;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,53 +42,46 @@ namespace Infrastructure.Services
             return priceAlert;
         }
 
-public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
-{
-    var userEmail = ExtractUserIdFromToken(token);
-    Console.WriteLine($"Extracted User Email from Token: {userEmail}");
+        public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
+        {
+            var userEmail = ExtractUserIdFromToken(token);
+            Console.WriteLine($"Extracted User Email from Token: {userEmail}");
 
-    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
-    
-    if (user == null)
-    {
-        Console.WriteLine("User not found in database.");
-        throw new Exception("User not found in database.");
-    }
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            
+            if (user == null)
+            {
+                Console.WriteLine("User not found in database.");
+                throw new Exception("User not found in database.");
+            }
 
-    Console.WriteLine($"User found: {user.Id} (Email: {user.Email})");
+            Console.WriteLine($"User found: {user.Id} (Email: {user.Email})");
 
-    var alerts = await _context.PriceAlerts
-        .Where(a => a.UserId == user.Id)
-        .ToListAsync();
+            var alerts = await _context.PriceAlerts
+                .Where(a => a.UserId == user.Id)
+                .ToListAsync();
 
-    Console.WriteLine($"Total alerts found: {alerts.Count}");
+            Console.WriteLine($"Total alerts found: {alerts.Count}");
 
-    var result = alerts.Select(alert => new PriceAlertDto
-    {
-        Id = alert.Id,
-        UserId = alert.UserId,
-        CoinName = alert.CoinName,
-        TargetPrice = alert.TargetPrice,
-        AlertSetAt = alert.AlertSetAt,
-        AlertTriggeredAt = alert.AlertTriggeredAt,
-        IsNotified = alert.IsNotified,
-    }).ToList();
+            var result = alerts.Select(alert => new PriceAlertDto
+            {
+                Id = alert.Id,
+                UserId = alert.UserId,
+                CoinName = alert.CoinName,
+                TargetPrice = alert.TargetPrice,
+                AlertSetAt = alert.AlertSetAt,
+                AlertTriggeredAt = alert.AlertTriggeredAt,
+                IsNotified = alert.IsNotified,
+            }).ToList();
 
-    return result;
-}
-
+            return result;
+        }
 
         public async Task<PriceAlertDto> GetAlertForUserAsync(int alertId, string token)
         {
             var userId = ExtractUserIdFromToken(token);
 
-            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == userId);
-
-            if (alert == null)
-            {
-                throw new Exception("Alert not found or you are not authorized to access this alert.");
-            }
-
+            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == userId) ?? throw new Exception("Alert not found or you are not authorized to access this alert.");
             var coinInfo = await _coinService.GetCoinInfoAsync(alert.CoinName, 7);
 
             var alertDto = new PriceAlertDto
@@ -129,6 +117,25 @@ public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string to
             }
 
             return newsArticles;
+        }
+
+        public async Task<IEnumerable<CoinDto>> ExtractFollowedCoinsFromAlerts(string userToken)
+        {
+            var alerts = await GetAllAlertsForUserAsync(userToken);
+            var coinNames = alerts.Select(alert => alert.CoinName).Distinct().ToList();
+
+            var followedCoins = new List<CoinDto>();
+            var tasks = new List<Task<CoinDto>>();
+
+            foreach (var coinName in coinNames)
+            {
+                tasks.Add(Task.Delay(300)
+                    .ContinueWith(_ => _coinService.GetCoinDataByNameAsync(coinName))
+                    .Unwrap());
+            }
+
+            followedCoins = (await Task.WhenAll(tasks)).ToList();
+            return followedCoins;
         }
 
         private string ExtractUserIdFromToken(string token)
