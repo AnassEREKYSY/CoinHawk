@@ -15,12 +15,13 @@ namespace Infrastructure.Services
         {
             var userEmail = ExtractUserIdFromToken(userToken);
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.");
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail)
+                ?? throw new Exception("User not found in database.");
             var coin = await _coinService.GetCoinDataByNameAsync(coinName);
-            
+
             var priceAlert = new PriceAlert
             {
-                UserId = user.Id, 
+                UserId = user.Id,
                 CoinName = coin.Name,
                 TargetPrice = targetPrice,
                 AlertSetAt = DateTime.UtcNow,
@@ -71,7 +72,7 @@ namespace Infrastructure.Services
                 TargetPrice = alert.TargetPrice,
                 AlertSetAt = alert.AlertSetAt,
                 AlertTriggeredAt = alert.AlertTriggeredAt,
-                IsNotified = alert.IsNotified,
+                IsNotified = alert.IsNotified
             }).ToList();
 
             return result;
@@ -81,7 +82,8 @@ namespace Infrastructure.Services
         {
             var userId = ExtractUserIdFromToken(token);
 
-            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == userId) ?? throw new Exception("Alert not found or you are not authorized to access this alert.");
+            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == userId)
+                ?? throw new Exception("Alert not found or you are not authorized to access this alert.");
             var coinInfo = await _coinService.GetCoinInfoAsync(alert.CoinName, 7);
 
             var alertDto = new PriceAlertDto
@@ -102,7 +104,7 @@ namespace Infrastructure.Services
         public async Task<IEnumerable<NewsArticleDto>> GetNewsForFollowedCoinsAsync(string token)
         {
             var alerts = await GetAllAlertsForUserAsync(token);
-            
+
             var followedCoins = alerts
                 .Select(alert => alert.Coin.Name)
                 .Distinct()
@@ -124,9 +126,7 @@ namespace Infrastructure.Services
             var alerts = await GetAllAlertsForUserAsync(userToken);
             var coinNames = alerts.Select(alert => alert.CoinName).Distinct().ToList();
 
-            var followedCoins = new List<CoinDto>();
             var tasks = new List<Task<CoinDto>>();
-
             foreach (var coinName in coinNames)
             {
                 tasks.Add(Task.Delay(300)
@@ -134,7 +134,7 @@ namespace Infrastructure.Services
                     .Unwrap());
             }
 
-            followedCoins = (await Task.WhenAll(tasks)).ToList();
+            var followedCoins = (await Task.WhenAll(tasks)).ToList();
             return followedCoins;
         }
 
@@ -142,14 +142,8 @@ namespace Infrastructure.Services
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
-            
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "sub");
 
-            if (userIdClaim == null)
-            {
-                throw new Exception("User identifier not found in token.");
-            }
-
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "sub") ?? throw new Exception("User identifier not found in token.");
             return userIdClaim.Value;
         }
 
