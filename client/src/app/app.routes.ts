@@ -5,8 +5,8 @@ import { DashBoardComponent } from './Components/dash-board/dash-board.component
 import { NavBarComponent } from './Shared/nav-bar/nav-bar.component';
 import { CoinComponent } from './Components/coin/coin.component';
 import { TrendingCoinsComponent } from './Components/trending-coins/trending-coins.component';
-import { FollowedCoinsComponent } from './Components/followed-coins/followed-coins.component';
 import { ProfileComponent } from './Components/profile/profile.component';
+import { CoinsListComponent } from './Components/coins-list/coins-list.component';
 
 export const routes: Routes = [
     { path: '', component: LoginComponent },
@@ -15,7 +15,7 @@ export const routes: Routes = [
     { path: 'dashboard', component: DashBoardComponent },
     { path: 'nav-bar', component: NavBarComponent },
     { path: 'coin', component: CoinComponent },
+    { path: 'coin-list', component: CoinsListComponent },
     { path: 'trending-coins', component: TrendingCoinsComponent },
-    { path: 'followed-coins', component: FollowedCoinsComponent },
     { path: 'profile', component: ProfileComponent },
 ];

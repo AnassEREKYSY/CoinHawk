@@ -1,1 +1,18 @@
-<p>coin works!</p>
+<div *ngIf="coin as c" class="coin-card">
+    <img *ngIf="c.large; else noImage" [src]="c.large" alt="Coin image" class="coin-image">
+    <ng-template #noImage>
+      <div class="coin-image no-image"></div>
+    </ng-template>
+  
+    <button (click)="unfollowCoin($event); $event.stopPropagation()" class="unfollow-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  
+    <div class="coin-overlay">
+      <h3 class="coin-name">{{ c.name || 'Unnamed Coin' }}</h3>
+      <h3 class="coin-price">{{ c.currentPrice ? '$' + c.currentPrice.toFixed(2) : 'N/A' }}</h3>
+    </div>
+  
+    <div class="coin-info-bottom-line"></div>
+  </div>
+  

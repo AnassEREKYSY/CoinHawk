@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../envirnoments/envirnoments.development';
 import { CoinDto } from '../Dtos/CoinDto';
@@ -32,4 +32,13 @@ export class CoinService {
   getTrendingCoins(): Observable<CoinDto[]> {
     return this.http.get<CoinDto[]>(`${this.apiUrl}coins/get-trending-coins`);
   }
+
+  getFollowedCoins(): Observable<CoinDto[]> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.get<CoinDto[]>(`${environment.apiUrl}price-alerts/get-followed-coins`, { headers });
+  }
+  
 }

@@ -38,7 +38,7 @@ builder.Services.AddScoped<ICoinService, CoinService>();
 builder.Services.AddScoped<IPriceAlertService, PriceAlertService>();
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddHttpClient<INewsService, NewsService>();
-builder.Services.AddHostedService<PriceAlertChecker>();
+// builder.Services.AddHostedService<PriceAlertChecker>();
 
 builder.Services.AddControllers(options =>
 {

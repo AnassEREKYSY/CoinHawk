@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
@@ -9,7 +10,8 @@ import { Router } from '@angular/router';
   imports: [
     MatIconModule,
     FormsModule,
-    CommonModule
+    CommonModule,
+    MatButtonModule,
   ],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss'
