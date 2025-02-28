@@ -1,4 +1,4 @@
-<div *ngIf="coin as c" class="coin-card">
+<div *ngIf="coin as c" class="coin-card" (click)="goToDetails(c.id)">
     <img *ngIf="c.large; else noImage" [src]="c.large" alt="Coin image" class="coin-image">
     <ng-template #noImage>
       <div class="coin-image no-image"></div>

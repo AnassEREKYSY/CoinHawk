@@ -7,6 +7,7 @@ import { CoinComponent } from './Components/coin/coin.component';
 import { TrendingCoinsComponent } from './Components/trending-coins/trending-coins.component';
 import { ProfileComponent } from './Components/profile/profile.component';
 import { CoinsListComponent } from './Components/coins-list/coins-list.component';
+import { CoinDetailsComponent } from './Components/coin-details/coin-details.component';
 
 export const routes: Routes = [
     { path: '', component: LoginComponent },
@@ -16,6 +17,7 @@ export const routes: Routes = [
     { path: 'nav-bar', component: NavBarComponent },
     { path: 'coin', component: CoinComponent },
     { path: 'coin-list', component: CoinsListComponent },
+    { path: 'coin-details/:id', component: CoinDetailsComponent },
     { path: 'trending-coins', component: TrendingCoinsComponent },
     { path: 'profile', component: ProfileComponent },
 ];

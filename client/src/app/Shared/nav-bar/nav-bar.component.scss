@@ -61,10 +61,11 @@
     background-color: var(--dark-gray);
     transition: transform 0.3s ease, background-color 0.3s ease;
     font-weight: 600;
+    cursor: pointer;
   }
   
   .nav-button:hover {
-    transform: scale(1.05);
+    transform: scale(1.09);
   }
   
   .nav-button.premium {
