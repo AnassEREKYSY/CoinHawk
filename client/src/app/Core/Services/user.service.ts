@@ -13,11 +13,11 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUserProfile(): Observable<ProfileDto[]> {
+  getUserProfile(): Observable<ProfileDto> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-    return this.http.get<ProfileDto[]>(`${environment.apiUrl}users/profile`, { headers });
+    return this.http.get<ProfileDto>(`${environment.apiUrl}users/profile`, { headers });
   }
 }

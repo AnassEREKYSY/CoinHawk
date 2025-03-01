@@ -1,1 +1,30 @@
-<p>profile works!</p>
+<div class="user-profile" *ngIf="userProfile; else loading">
+    <div class="profile-container">
+      <div class="profile-sidebar">
+        <div class="profile-image">
+          <ng-template #defaultIcon>
+            <mat-icon>account_circle</mat-icon>
+          </ng-template>
+        
+          <button class="edit-button">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+                
+        <div class="profile-text">
+          <h1 class="display-name">{{ userProfile.firstName }} {{ userProfile.lastName }}</h1>
+          <p class="infos"><strong>Email:</strong> {{ userProfile.email }}</p>
+          <p class="infos"><strong>Password:</strong> **************** </p>
+        </div>
+        <button class="edit-profile" >
+            <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #loading>
+    <p>Loading user profile...</p>
+  </ng-template>
+  
+  <p *ngIf="errorMessage">{{ errorMessage }}</p>
