@@ -67,19 +67,14 @@ namespace Infrastructure.Services
         public async Task<UserProfileDto> GetUserProfileAsync(string token)
         {
             var userId = ExtractUserIdFromToken(token);
-            var user = await _userManager.FindByIdAsync(userId);
-            
-            if (user == null)
-            {
-                throw new Exception("User not found");
-            }
-
+            var user = await _userManager.FindByEmailAsync(userId) ?? throw new Exception("User not found");
             return new UserProfileDto
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Email = user.Email
+                Email = user.Email,
+                Password =user.PasswordHash
             };
         }
 
@@ -89,17 +84,20 @@ namespace Infrastructure.Services
             var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
             var now = DateTime.UtcNow;
             var expiryMinutes = Convert.ToDouble(jwtSettings["ExpiryInMinutes"]);
-            if(expiryMinutes <= 0)
+            if (expiryMinutes <= 0)
             {
                 expiryMinutes = 60;
             }
-            
+
+            var tokenHandler = new JwtSecurityTokenHandler();            
+            tokenHandler.InboundClaimTypeMap.Clear();
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim("id", user.Id),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 NotBefore = now,
@@ -109,9 +107,7 @@ namespace Infrastructure.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-
             return new AuthenticationResultDto
             {
                 Success = true,
@@ -131,6 +127,50 @@ namespace Infrastructure.Services
             }
 
             return userIdClaim.Value;
+        }
+    
+        public async Task<AuthenticationResultDto> ForgotPasswordAsync(ForgotPasswordDto request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return new AuthenticationResultDto
+                {
+                    Success = false,
+                    Errors = ["User does not exist"]
+                };
+            }
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            return new AuthenticationResultDto
+            {
+                Success = true,
+                Token = resetToken
+            };
+        }
+
+        public async Task<AuthenticationResultDto> ResetPasswordAsync(ResetPasswordDto request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return new AuthenticationResultDto
+                {
+                    Success = false,
+                    Errors = ["User does not exist"]
+                };
+            }
+
+            var resetPassResult = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+
+            if (!resetPassResult.Succeeded)
+            {
+                return new AuthenticationResultDto
+                {
+                    Success = false,
+                    Errors = resetPassResult.Errors.Select(e => e.Description)
+                };
+            }
+            return await GenerateAuthenticationResultForUserAsync(user);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -48,6 +48,23 @@ namespace API.Controllers
             }
         }
 
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
+        {
+            var result = await _userService.ForgotPasswordAsync(request);
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+        {
+            var result = await _userService.ResetPasswordAsync(request);
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result);
+        }
 
         private string ExtractJwtToken()
         {
