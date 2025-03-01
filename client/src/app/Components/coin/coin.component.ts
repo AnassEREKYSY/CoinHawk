@@ -24,7 +24,7 @@ export class CoinComponent {
     this.unfollow.emit(this.coin.id);
   }
 
-  goToDetails(id: string) {
-    this.router.navigate(['/coin-details', id]); 
+  goToDetails(name: string) {
+    this.router.navigate(['/coin-details', name]); 
   }
 }

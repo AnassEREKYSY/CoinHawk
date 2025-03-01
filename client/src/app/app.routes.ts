@@ -17,7 +17,7 @@ export const routes: Routes = [
     { path: 'nav-bar', component: NavBarComponent },
     { path: 'coin', component: CoinComponent },
     { path: 'coin-list', component: CoinsListComponent },
-    { path: 'coin-details/:id', component: CoinDetailsComponent },
+    { path: 'coin-details/:coinName', component: CoinDetailsComponent },
     { path: 'trending-coins', component: TrendingCoinsComponent },
     { path: 'profile', component: ProfileComponent },
 ];

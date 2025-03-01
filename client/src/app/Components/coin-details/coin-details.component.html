@@ -1,1 +1,28 @@
-<p>coin-details works!</p>
+<div class="coin-details" *ngIf="coinData; else loading">  
+    <div class="coin-header">
+        <div class="coin-thumb">
+            <img *ngIf="coinData.thumb" [src]="coinData.thumb" [alt]="coinData.name" />
+        </div>
+        <div class="coin-price">
+            <p>Current Price: ${{ coinData.currentPrice | number:'1.2-2' }}</p>
+        </div>
+    </div>
+  
+    <div class="market-chart-container">
+      <div class="filter-buttons">
+        <button (click)="changeDuration(7)" [class.active]="selectedDuration === 7">1W</button>
+        <button (click)="changeDuration(30)" [class.active]="selectedDuration === 30">1M</button>
+        <button (click)="changeDuration(365)" [class.active]="selectedDuration === 365">1Y</button>
+      </div>
+      
+      <div class="chart">
+        <canvas id="marketChart"></canvas>
+      </div>
+    </div>
+    
+  </div>
+  
+  <ng-template #loading>
+    <p>Loading coin details...</p>
+  </ng-template>
+  
