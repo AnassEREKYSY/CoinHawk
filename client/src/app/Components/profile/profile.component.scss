@@ -1,9 +1,9 @@
-$user-green: #1db954;
+$green: #1db954;
 $dark-gray: #121212;
 $light-gray: #b3b3b3;
 $white: #ffffff;
-@use "sass:color";
 $shadow-dark: rgba(0, 0, 0, 0.8);
+@use "sass:color";
 
 .user-profile {
   display: flex;
@@ -29,12 +29,13 @@ $shadow-dark: rgba(0, 0, 0, 0.8);
   background-color: #2d2d2d;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px 10px 0px 0px;
+  position: relative;
 }
 
 .profile-image {
   position: relative;
-  width: 350px;
-  height: 350px;
+  width: 380px;
+  height: 300px;
   border-radius: 50%;
   box-shadow: 0px 10px 20px $shadow-dark;
   overflow: hidden;
@@ -92,40 +93,68 @@ $shadow-dark: rgba(0, 0, 0, 0.8);
 .profile-text {
   display: flex;
   flex-direction: column;
+  width: 100%;
 
   .display-name {
     font-size: 76px;
     font-weight: bold;
     color: $white;
-    margin-top : 80px;
   }
 
   .infos {
     font-size: 22px;
     color: $light-gray;
-    margin-top: 20px;
-    margin-right: 10px;
+    margin-top: 10px;
   }
 }
 
 .edit-profile {
-    width: 40px;
-    height: 40px;
-    background-color: #1db954;
-    color: #121212;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s ease;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background-color: $green;
+  color: $dark-gray;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
 
-    mat-icon {
-      font-size: 24px;
-    }
+  mat-icon {
+    font-size: 24px;
+  }
 
-    &:hover {
-      background-color: color.scale(#1db954, $lightness: 10%);
-    }
+  &:hover {
+    background-color: color.adjust($green, $lightness: 10%);
+  }
+}
+
+.input-field {
+  width: 95%;
+  padding: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border: 1px solid $light-gray;
+  border-radius: 5px;
+  background-color: #1e1e1e;
+  color: $white;
+}
+
+.save-button {
+  background-color: $green;
+  color: $dark-gray;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background-color: color.adjust($green, $lightness: 10%);
+  }
 }
