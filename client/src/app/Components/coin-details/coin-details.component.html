@@ -1,10 +1,10 @@
 <div class="coin-details" *ngIf="coinData; else loading">  
     <div class="coin-header">
         <div class="coin-thumb">
-            <img *ngIf="coinData.thumb" [src]="coinData.thumb" [alt]="coinData.name" />
+            <img *ngIf="coinData.thumb" [src]="coinData?.thumb" [alt]="coinData?.name" />
         </div>
         <div class="coin-price">
-            <p>Current Price: ${{ coinData.currentPrice | number:'1.2-2' }}</p>
+            <p>Current Price: ${{ coinData?.currentPrice | number:'1.2-2' }}</p>
         </div>
     </div>
   
@@ -16,7 +16,7 @@
       </div>
       
       <div class="chart">
-        <canvas id="marketChart"></canvas>
+        <canvas #marketChartCanvas></canvas>
       </div>
     </div>
     

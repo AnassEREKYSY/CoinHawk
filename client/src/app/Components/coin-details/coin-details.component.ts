@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CoinService } from '../../Core/Services/coin.service';
 import { CoinDto } from '../../Core/Dtos/CoinDto';
@@ -14,6 +14,8 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./coin-details.component.scss']
 })
 export class CoinDetailsComponent implements OnInit {
+  
+  @ViewChild('marketChartCanvas', { static: false }) chartCanvas!: ElementRef;
 
   coinName: string = '';
   coinData: CoinDto | undefined;
@@ -52,19 +54,22 @@ export class CoinDetailsComponent implements OnInit {
     this.coinService.getCoinMarketChart(this.coinName, this.selectedDuration).subscribe(
       data => {
         this.marketChart = data;
-        this.updateChart();
+        setTimeout(() => this.updateChart(), 0); 
       },
       error => console.error('Failed to load market chart', error)
     );
   }
 
   updateChart(): void {
-    const canvas = document.getElementById('marketChart') as HTMLCanvasElement;
+    if (!this.chartCanvas || !this.chartCanvas.nativeElement) {
+      console.error("Canvas element not found");
+      return;
+    }
     if (this.chart) {
-      this.chart.destroy(); 
+      this.chart.destroy();
     }
 
-    this.chart = new Chart(canvas, {
+    this.chart = new Chart(this.chartCanvas.nativeElement, {
       type: 'line',
       data: {
         labels: this.marketChart.map(entry => new Date(entry[0]).toLocaleDateString()),
@@ -78,6 +83,7 @@ export class CoinDetailsComponent implements OnInit {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           x: { display: true },
           y: { display: true }

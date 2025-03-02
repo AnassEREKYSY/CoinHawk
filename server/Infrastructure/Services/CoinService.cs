@@ -167,7 +167,7 @@ namespace Infrastructure.Services
             }).ToList();
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
             };
             await _cache.SetStringAsync(
                 cacheKey, 

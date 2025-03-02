@@ -38,14 +38,26 @@ namespace API.Controllers
             try
             {
                 var coinData = await _coinService.GetCoinDataByNameAsync(coinName);
+                
+                if (coinData == null)
+                {
+                    return NotFound($"Coin data for '{coinName}' not found.");
+                }
+
                 var marketChart = await _coinService.GetMarketChartByCoinIdAsync(coinData.Id, days);
+                if (marketChart == null || !marketChart.Any())
+                {
+                    return NotFound($"Market chart data for '{coinName}' not found.");
+                }
+
                 return Ok(marketChart);
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [HttpGet("get-coin-details-info/{coinName}")]
         public async Task<IActionResult> GetCoinInfo(string coinName, [FromQuery] int days)

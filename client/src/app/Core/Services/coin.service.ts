@@ -9,7 +9,7 @@ import { CoinDto } from '../Dtos/CoinDto';
 })
 export class CoinService {
 
-  private apiUrl = environment.apiUrl + '/api/coins';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
