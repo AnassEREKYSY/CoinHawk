@@ -34,7 +34,7 @@ export class NavBarComponent implements OnInit {
    
    
   navigateToHome(): void {
-    this.router.navigate(['/dahsboard']);
+    this.router.navigate(['/dashboard']);
   }
 
   navigateToProfile(): void {

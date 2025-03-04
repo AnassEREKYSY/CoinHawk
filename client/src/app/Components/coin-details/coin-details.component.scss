@@ -10,8 +10,8 @@ $light-gray: #b3b3b3;
   background-color: $dark-gray;
   color: $white;
   padding: 20px;
-  min-height: 90vh;
   font-family: 'Helvetica Neue', Arial, sans-serif;
+  border:1px solid red;
 }
 
 .coin-header {
@@ -36,7 +36,8 @@ $light-gray: #b3b3b3;
 
 .market-chart-container {
   width: 100%;
-  max-width: 800px;
+  height: 5%;
+  border: 1px solid green;
 }
 
 .filter-buttons {
