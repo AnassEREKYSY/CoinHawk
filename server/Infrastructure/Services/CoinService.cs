@@ -46,9 +46,12 @@ namespace Infrastructure.Services
             }
             var coins = await GetAllCoinsAsync();
             var coin = coins.FirstOrDefault(c =>
-                string.Equals(c.Name, coinName, StringComparison.OrdinalIgnoreCase))
-                ?? throw new Exception($"Coin with name '{coinName}' not found.");
-
+                string.Equals(c.Name, coinName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(c.Symbol, coinName, StringComparison.OrdinalIgnoreCase));
+            if(coin == null)
+            {
+                throw new Exception($"Coin with name or symbol '{coinName}' not found.");
+            }
             var coinData = await _client.CoinsClient.GetAllCoinDataWithId(coin.Id)
                 ?? throw new Exception($"Failed to retrieve data for coin ID: {coin.Id}");
 
@@ -87,18 +90,36 @@ namespace Infrastructure.Services
             {
                 return JsonSerializer.Deserialize<List<decimal[]>>(cachedData);
             }
-            var marketChartResult = await _client.CoinsClient.GetMarketChartsByCoinId(coinId, "usd", days.ToString())
-                ?? throw new Exception("Failed to retrieve market chart data.");
 
-            var prices = marketChartResult.Prices
-                .Select(innerArray => innerArray.Select(x => x ?? 0M).ToArray())
-                .ToList();
-
-            var options = new DistributedCacheEntryOptions
+            List<decimal[]> prices;
+            try
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
-            };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(prices), options);
+                var marketChartResult = await _client.CoinsClient.GetMarketChartsByCoinId(coinId, "usd", days.ToString())
+                    ?? throw new Exception("Market chart data is null.");
+
+                prices = marketChartResult.Prices
+                    .Select(innerArray => innerArray.Select(x => x ?? 0M).ToArray())
+                    .ToList();
+
+                var options = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+                };
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(prices), options);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("429"))
+                {
+                    var errorOptions = new DistributedCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
+                    };
+                    await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(new { error = "429" }), errorOptions);
+                    throw new Exception("Rate limit exceeded for CoinGecko API. Please try again later.");
+                }
+                throw;
+            }
             return prices;
         }
 
@@ -111,21 +132,30 @@ namespace Infrastructure.Services
 
         public async Task<IEnumerable<CoinDto>> GetTrendingCoinsAsync(int count = 10)
         {
+            string trendingCacheKey = "trending-coins";
+            var cachedTrending = await _cache.GetStringAsync(trendingCacheKey);
+            if (!string.IsNullOrEmpty(cachedTrending))
+            {
+                return JsonSerializer.Deserialize<IEnumerable<CoinDto>>(cachedTrending);
+            }
             var allCoins = await GetAllCoinsAsync();
-            var trendingCoins = allCoins
-                .OrderBy(c => c.MarketCapRank)
-                .ToList();
-
+            var trendingCoins = allCoins.OrderBy(c => c.MarketCapRank).Take(count).ToList();
             var result = new List<CoinDto>();
             foreach (var coin in trendingCoins)
             {
                 var coinData = await GetCoinInfoAsync(coin.Name, 7);
                 result.Add(coinData);
+                await Task.Delay(500);
             }
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+            };
+            await _cache.SetStringAsync(trendingCacheKey, JsonSerializer.Serialize(result), options);
 
             return result;
         }
-    
+
         public async Task<List<CoinDto>> GetMultipleCoinsDataAsync(IEnumerable<string> coinNames)
         {
             var uniqueNames = coinNames
