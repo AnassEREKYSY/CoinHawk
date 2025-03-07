@@ -5,7 +5,14 @@
     <input type="password" placeholder="Password" class="input-field" formControlName="password" />
     <a href="#" class="forgot-password">Forgot password?</a>
     <div class="button-container">
-      <button class="btn" type="submit">Connexion</button>
+      <button class="btn" type="submit" [disabled]="isLoading">
+        <ng-container *ngIf="!isLoading; else loading">
+          Connexion
+        </ng-container>
+        <ng-template #loading>
+          <span class="spinner"></span>
+        </ng-template>
+      </button>
       <button class="btn" type="button" (click)="RedirectToRegister()">Register</button>
     </div>
   </form>

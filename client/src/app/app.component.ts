@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from "./Shared/nav-bar/nav-bar.component";
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,13 @@ import { NavBarComponent } from "./Shared/nav-bar/nav-bar.component";
 })
 export class AppComponent {
   title = 'CoinHawk';
+  showNavBar = true;
+
+  constructor(private router: Router) {
+    this.router.events
+    .pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe(() => {
+      this.showNavBar = this.router.url !== '/login' && this.router.url !== '/' && this.router.url !== '';
+    })
+  }
 }

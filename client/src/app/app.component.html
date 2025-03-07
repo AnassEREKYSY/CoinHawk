@@ -1,4 +1,6 @@
-<app-nav-bar></app-nav-bar>
+@if(showNavBar){
+  <app-nav-bar></app-nav-bar>
+} 
 <div class="container mx-5 p-1">
   <router-outlet></router-outlet>
 </div>
