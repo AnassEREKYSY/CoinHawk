@@ -58,7 +58,6 @@ namespace API.Controllers
             }
         }
 
-
         [HttpGet("get-coin-details-info/{coinName}")]
         public async Task<IActionResult> GetCoinInfo(string coinName, [FromQuery] int days)
         {
@@ -80,23 +79,23 @@ namespace API.Controllers
             return Ok(trendingCoins);
         }
 
-        private string ExtractJwtToken()
+        [HttpGet("search-coin")]
+        public async Task<IActionResult> SearchCoins([FromQuery] string query)
         {
-            if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+            try
             {
-                return null;
+                var result = await _coinService.SearchCoinsAsync(query);
+                if (result == null || !result.Any())
+                {
+                    return NotFound("No matching coins found.");
+                }
+                return Ok(result);
             }
-
-            var token = authHeader.ToString();
-            if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                return token.Substring("Bearer ".Length).Trim();
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            return token;
         }
-
-
-        
+       
     }
 }

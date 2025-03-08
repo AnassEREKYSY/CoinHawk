@@ -11,5 +11,6 @@ namespace Infrastructure.IServices
         Task<IEnumerable<CoinDto>> GetTrendingCoinsAsync(int count = 10);
         Task<IEnumerable<CoinDto>> GetFollowedCoins(string userToken);
         Task<List<CoinDto>> GetMultipleCoinsDataAsync(IEnumerable<string> coinNames);
+        Task<IEnumerable<CoinDto>> SearchCoinsAsync(string searchTerm);
     }
 }

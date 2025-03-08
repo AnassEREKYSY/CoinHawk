@@ -207,5 +207,24 @@ namespace Infrastructure.Services
             return result;
         }
 
+        public async Task<IEnumerable<CoinDto>> SearchCoinsAsync(string searchTerm)
+        {
+            var coins = await GetAllCoinsAsync();
+            
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return coins;
+            }
+
+            var lowerSearchTerm = searchTerm.ToLowerInvariant();
+
+            var filteredCoins = coins.Where(c => 
+                (!string.IsNullOrEmpty(c.Name) && c.Name.Contains(lowerSearchTerm, StringComparison.InvariantCultureIgnoreCase)) ||
+                (!string.IsNullOrEmpty(c.Symbol) && c.Symbol.Contains(lowerSearchTerm, StringComparison.InvariantCultureIgnoreCase))
+            );
+
+            return filteredCoins;
+        }
+
     }
 }
