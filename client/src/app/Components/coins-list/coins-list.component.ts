@@ -19,21 +19,16 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
   standalone: true
 })
 export class CoinsListComponent implements OnInit {
-  // Holds all followed coins from the server
   private allCoins: CoinDto[] = [];
 
-  // Coins currently displayed in the template
   coinsData: CoinDto[] = [];
 
-  // Control flags
   isLoading = true;  
   isLoadingNewData = false;
 
-  // InfiniteScroll distance settings
   scrollDistance = 2;
   scrollUpDistance = 1.5;
 
-  // Show data in chunks of 10
   private pageSize = 10;
   private displayedCount = 0;
 
@@ -47,15 +42,13 @@ export class CoinsListComponent implements OnInit {
     this.loadAllFollowedCoins();
   }
 
-  // Fetch all the user's coins once
-  private loadAllFollowedCoins() {
+  loadAllFollowedCoins() {
     this.isLoading = true;
     this.coinService.getFollowedCoins().subscribe({
       next: (coins) => {
         this.allCoins = coins || [];
         this.isLoading = false;
 
-        // Show initial 10 items
         this.loadMoreItems();
       },
       error: (error) => {
@@ -65,28 +58,24 @@ export class CoinsListComponent implements OnInit {
     });
   }
 
-  // Triggered by infinite-scroll when user scrolls near bottom
   loadMore() {
     if (this.displayedCount >= this.allCoins.length) {
-      return; // no more items
+      return;
     }
 
     this.isLoadingNewData = true;
-    // Optionally add a short delay if you want a spinner effect
     setTimeout(() => {
       this.loadMoreItems();
       this.isLoadingNewData = false;
     }, 500);
   }
 
-  // Appends the next chunk of 10 items from allCoins to coinsData
   private loadMoreItems() {
     const nextItems = this.allCoins.slice(this.displayedCount, this.displayedCount + this.pageSize);
     this.coinsData.push(...nextItems);
     this.displayedCount += nextItems.length;
   }
 
-  // Example unfollow logic if needed
   unfollowCoin(coinId: string): void {
     // this.coinsData = this.coinsData.filter(c => c.id !== coinId);
     // this.allCoins = this.allCoins.filter(c => c.id !== coinId);

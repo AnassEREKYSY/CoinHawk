@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { CoinService } from '../../Core/Services/coin.service';
+import { PriceAlertService } from '../../Core/Services/price-alert.service';
 import { CoinDto } from '../../Core/Dtos/CoinDto';
+import { SnackBarService } from '../../Core/Services/snack-bar.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -21,10 +23,17 @@ import { CoinDto } from '../../Core/Dtos/CoinDto';
 export class NavBarComponent implements OnInit {
   searchQuery: string = '';
   searchResults: CoinDto[] = [];
+  activeFollowCoin: CoinDto | null = null;
+  followTargetPrices: { [key: string]: number } = {};
+  followFormPosition: { top: number, left: number } | null = null;
+
+  @Output() priceAlertCreated = new EventEmitter<void>();
 
   constructor(
     private router: Router,
-    private coinService: CoinService
+    private coinService: CoinService,
+    private priceAlertService: PriceAlertService,
+    private snackBarService: SnackBarService
   ) {}
 
   ngOnInit(): void {}
@@ -58,5 +67,34 @@ export class NavBarComponent implements OnInit {
           this.searchResults = [];
         }
       });
+  }
+
+  toggleFollowForm(coin: CoinDto, event: MouseEvent): void {
+    if (this.activeFollowCoin && this.activeFollowCoin.id === coin.id) {
+      this.activeFollowCoin = null;
+      this.followFormPosition = null;
+    } else {
+      const rect = (event.target as HTMLElement).getBoundingClientRect();
+      this.followFormPosition = { top: rect.top, left: rect.right + 8 };
+      this.activeFollowCoin = coin;
+    }
+  }
+
+  submitFollow(): void {
+    if (!this.activeFollowCoin) return;
+    const coinName = this.activeFollowCoin.name;
+    const targetPrice = this.followTargetPrices[this.activeFollowCoin.id];
+    const body = { coinName, targetPrice };
+    this.priceAlertService.createPriceAlert(body).subscribe({
+      next: () => {
+        this.snackBarService.success('Price Alert Created');
+        this.activeFollowCoin = null;
+        this.followFormPosition = null;
+        this.priceAlertCreated.emit();
+      },
+      error: (error) => {
+        this.snackBarService.error('Error creating price alert: '+error);
+      }
+    });
   }
 }

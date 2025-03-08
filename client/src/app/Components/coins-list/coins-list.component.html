@@ -19,6 +19,7 @@
     <app-coin 
       *ngFor="let coin of coinsData" 
       [coin]="coin"
+      (priceAlertCreated)="loadAllFollowedCoins()"
       (unfollow)="unfollowCoin($event)">
     </app-coin>
   </div>

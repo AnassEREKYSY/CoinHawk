@@ -28,7 +28,7 @@
   position: relative;
   margin-top: 5px;
   width: 100%;
-  max-width: 700px; 
+  max-width: 700px;
 }
 
 .search-bar input {
@@ -38,7 +38,7 @@
   padding: 5px 10px;
   font-size: 20px;
   color: var(--white);
-  width: 500px; 
+  width: 500px;
   height: 40px;
   transition: width 0.3s ease;
 }
@@ -112,7 +112,7 @@
   top: calc(100% + 8px);
   left: 0;
   width: 100%;
-  height: 300px; 
+  height: 300px;
   overflow-y: auto;
   background-color: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
@@ -139,10 +139,16 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   transition: background 0.2s ease;
   cursor: pointer;
+  position: relative;
 }
 
 .search-result:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.follow-container {
+  position: relative;
+  display: inline-block;
 }
 
 .follow-button {
@@ -165,6 +171,42 @@
 .follow-button mat-icon {
   color: var(--black);
   font-size: 18px;
+}
+
+.follow-form-overlay {
+  position: fixed;
+  background-color: var(--white);
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  margin-left: 18px;
+}
+
+.follow-form-overlay form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.follow-form-overlay input[type="number"] {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.follow-form-overlay button {
+  background-color: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.follow-form-overlay button:hover {
+  background-color: var(--dark-gray);
 }
 
 .search-results::-webkit-scrollbar {
@@ -217,25 +259,21 @@
     padding: 10px 20px;
     height: auto;
   }
-
   .navbar-left, .navbar-right {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
     gap: 15px;
   }
-
   .nav-button {
     width: 100%;
     text-align: left;
     padding: 10px;
   }
-
   .search-bar input {
     width: 100%;
     max-width: 100%;
   }
-
   .search-results {
     position: absolute;
     top: calc(100% + 8px);
