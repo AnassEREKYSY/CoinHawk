@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { CoinService } from '../../Core/Services/coin.service';
+import { CoinDto } from '../../Core/Dtos/CoinDto';
 
 @Component({
   selector: 'app-nav-bar',
@@ -18,21 +20,15 @@ import { Router } from '@angular/router';
 })
 export class NavBarComponent implements OnInit {
   searchQuery: string = '';
-  searchResults: any[] = [];
-  selectedFilter: string = 'all'; 
-  loading: boolean = false;
-  offset: number = 0;
-  limit: number = 10;
+  searchResults: CoinDto[] = [];
 
   constructor(
     private router: Router,
+    private coinService: CoinService
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
 
-  }
-   
-   
   navigateToHome(): void {
     this.router.navigate(['/dashboard']);
   }
@@ -47,16 +43,20 @@ export class NavBarComponent implements OnInit {
   }
 
   onSearchInput(): void {
-    
-  }
-  
-  
+    if (!this.searchQuery.trim()) {
+      this.searchResults = [];
+      return;
+    }
 
-  onScroll(): void {
-    
-  }
-
-  loadSearchResults(): void {
-   
+    this.coinService.searchCoins(this.searchQuery)
+      .subscribe({
+        next: (results) => {
+          this.searchResults = results;
+        },
+        error: (error) => {
+          console.error('Search error:', error);
+          this.searchResults = [];
+        }
+      });
   }
 }

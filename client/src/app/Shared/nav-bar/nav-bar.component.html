@@ -1,27 +1,38 @@
 <nav class="coinHawk-navbar">
-  <div class="navbar-left">
+    <div class="navbar-left">
       <a href="#" class="logo">
-          <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d208683fad7ae6f2ce06c76d0a56.png" alt="Coin Logo"/>
+        <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d208683fad7ae6f2ce06c76d0a56.png" alt="Coin Logo"/>
       </a>
       <button class="nav-button home" (click)="navigateToHome()">
-          <mat-icon class="icon">home</mat-icon>
+        <mat-icon class="icon">home</mat-icon>
       </button>
       <div class="search-container">
-          <div class="search-bar">
-              <input type="text" placeholder="Search" [(ngModel)]="searchQuery" (input)="onSearchInput()">
-          </div>
+        <div class="search-bar">
+          <input type="text" placeholder="Search" [(ngModel)]="searchQuery" (input)="onSearchInput()">
+        </div>
+        <div *ngIf="searchResults && searchResults.length > 0" class="search-results">
+          <ul>
+            <li *ngFor="let coin of searchResults" class="search-result">
+              <span class="coin-info">{{ coin.name }} ({{ coin.symbol }})</span>
+              <button class="follow-button">
+                Follow
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
-  </div>
-  <div class="navbar-right">
+    </div>
+    <div class="navbar-right">
       <button class="nav-button premium">Discover Premium</button>
       <button class="nav-button install">
-          <mat-icon class="icon">get_app</mat-icon> Install App
+        <mat-icon class="icon">get_app</mat-icon> Install App
       </button>
       <button class="nav-button profile" (click)="navigateToProfile()">
-          <mat-icon class="icon">account_circle</mat-icon>
+        <mat-icon class="icon">account_circle</mat-icon>
       </button>
       <button class="nav-button logout" (click)="logout()">
-          <mat-icon class="icon">logout</mat-icon>
+        <mat-icon class="icon">logout</mat-icon>
       </button>
-  </div>
-</nav>
+    </div>
+  </nav>
+  

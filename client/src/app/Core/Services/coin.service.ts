@@ -40,5 +40,9 @@ export class CoinService {
     });
     return this.http.get<CoinDto[]>(`${environment.apiUrl}price-alerts/get-followed-coins`, { headers });
   }
+
+  searchCoins(query: string): Observable<CoinDto[]> {
+    return this.http.get<CoinDto[]>(`${this.apiUrl}coins/search-coin?query=${query}`);
+  }
   
 }
