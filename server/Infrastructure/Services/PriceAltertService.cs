@@ -23,6 +23,7 @@ namespace Infrastructure.Services
             {
                 UserId = user.Id,
                 CoinName = coin.Name,
+                coinId = coin.Id,
                 TargetPrice = targetPrice,
                 AlertSetAt = DateTime.UtcNow,
                 IsNotified = false
@@ -69,6 +70,7 @@ namespace Infrastructure.Services
                 Id = alert.Id,
                 UserId = alert.UserId,
                 CoinName = alert.CoinName,
+                CoinId = alert.coinId,
                 TargetPrice = alert.TargetPrice,
                 AlertSetAt = alert.AlertSetAt,
                 AlertTriggeredAt = alert.AlertTriggeredAt,
@@ -124,8 +126,8 @@ namespace Infrastructure.Services
         public async Task<IEnumerable<CoinDto>> ExtractFollowedCoinsFromAlerts(string userToken)
         {
             var alerts = await GetAllAlertsForUserAsync(userToken);
-            var coinNames = alerts.Select(a => a.CoinName).Distinct().ToList();
-            var coinsData = await _coinService.GetMultipleCoinsDataAsync(coinNames);
+            var coinIds = alerts.Select(a => a.CoinId).ToList();
+            var coinsData = await _coinService.GetMultipleCoinsDataAsync(coinIds);
             return coinsData;
         }
 

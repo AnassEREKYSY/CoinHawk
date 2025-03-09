@@ -156,18 +156,18 @@ namespace Infrastructure.Services
             return result;
         }
 
-        public async Task<List<CoinDto>> GetMultipleCoinsDataAsync(IEnumerable<string> coinNames)
+        public async Task<List<CoinDto>> GetMultipleCoinsDataAsync(IEnumerable<string> coinIds)
         {
-            var uniqueNames = coinNames
-                .Where(name => !string.IsNullOrWhiteSpace(name))
-                .Select(name => name.ToLowerInvariant().Trim())
-                .Distinct()
+            var uniqueIds = coinIds
+                .Where(Id => !string.IsNullOrWhiteSpace(Id))
                 .ToList();
 
-            if (uniqueNames.Count == 0)
+            Console.WriteLine($"Coin IDs: {string.Join(", ", uniqueIds)}");
+
+            if (uniqueIds.Count == 0)
                 return [];
 
-            var cacheKey = $"multiple-coins:{string.Join(",", uniqueNames)}";
+            var cacheKey = $"multiple-coins:{string.Join(",", uniqueIds)}";
             var cachedString = await _cache.GetStringAsync(cacheKey);
             if (!string.IsNullOrEmpty(cachedString))
             {
@@ -175,7 +175,7 @@ namespace Infrastructure.Services
             }
             var markets = await _client.CoinsClient.GetCoinMarkets(
                 vsCurrency: "usd",
-                ids: uniqueNames.ToArray(),
+                ids: uniqueIds.ToArray(),
                 order: "market_cap_desc",
                 perPage: 250,
                 page: 1,

@@ -8,6 +8,7 @@ import { CoinService } from '../../Core/Services/coin.service';
 import { PriceAlertService } from '../../Core/Services/price-alert.service';
 import { CoinDto } from '../../Core/Dtos/CoinDto';
 import { SnackBarService } from '../../Core/Services/snack-bar.service';
+import { PriceAlertNotifierService } from '../../Core/Services/price-alert-notifier.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -27,13 +28,12 @@ export class NavBarComponent implements OnInit {
   followTargetPrices: { [key: string]: number } = {};
   followFormPosition: { top: number, left: number } | null = null;
 
-  @Output() priceAlertCreated = new EventEmitter<void>();
-
   constructor(
     private router: Router,
     private coinService: CoinService,
     private priceAlertService: PriceAlertService,
-    private snackBarService: SnackBarService
+    private snackBarService: SnackBarService,
+    private priceAlertNotifierService: PriceAlertNotifierService,
   ) {}
 
   ngOnInit(): void {}
@@ -90,10 +90,11 @@ export class NavBarComponent implements OnInit {
         this.snackBarService.success('Price Alert Created');
         this.activeFollowCoin = null;
         this.followFormPosition = null;
-        this.priceAlertCreated.emit();
+        this.priceAlertNotifierService.notifyPriceAlert();
+        window.location.reload();
       },
       error: (error) => {
-        this.snackBarService.error('Error creating price alert: '+error);
+        this.snackBarService.error('Error creating price alert: ' + error);
       }
     });
   }

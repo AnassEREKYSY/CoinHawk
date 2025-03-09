@@ -6,6 +6,8 @@ import { CoinDto } from '../../Core/Dtos/CoinDto';
 import { CoinComponent } from '../coin/coin.component';
 import { CommonModule } from '@angular/common';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { PriceAlertNotifierService } from '../../Core/Services/price-alert-notifier.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-coins-list',
@@ -31,15 +33,20 @@ export class CoinsListComponent implements OnInit {
 
   private pageSize = 10;
   private displayedCount = 0;
+  private priceAlertSub!: Subscription;
 
   constructor(
     private snackBarService: SnackBarService,
     private coinService: CoinService,
+    private priceAlertNotifierService: PriceAlertNotifierService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadAllFollowedCoins();
+    this.priceAlertSub = this.priceAlertNotifierService.priceAlert$.subscribe(() => {
+      this.loadAllFollowedCoins();
+    });
   }
 
   loadAllFollowedCoins() {
