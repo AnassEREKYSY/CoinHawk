@@ -10,6 +10,7 @@ namespace Infrastructure.Dtos
         public string Thumb { get; set; }
         public string Large { get; set; }
         public decimal CurrentPrice { get; set; }
+        public decimal TargetPrice { get; set; }
         public decimal MarketCap { get; set; }
         public decimal TotalVolume { get; set; }
         public List<decimal[]> MarketChart { get; set; }

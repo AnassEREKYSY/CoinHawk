@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PriceAlertNotifierService } from '../../Core/Services/price-alert-notifier.service';
 import { Subscription } from 'rxjs';
+import { PriceAlertService } from '../../Core/Services/price-alert.service';
 
 @Component({
   selector: 'app-coins-list',
@@ -39,6 +40,7 @@ export class CoinsListComponent implements OnInit {
     private snackBarService: SnackBarService,
     private coinService: CoinService,
     private priceAlertNotifierService: PriceAlertNotifierService,
+    private priceAlertService: PriceAlertService,
     private router: Router
   ) {}
 
@@ -54,6 +56,9 @@ export class CoinsListComponent implements OnInit {
     this.coinService.getFollowedCoins().subscribe({
       next: (coins) => {
         this.allCoins = coins || [];
+        this.coinsData = [];
+        this.displayedCount = 0;
+        
         this.isLoading = false;
 
         this.loadMoreItems();
@@ -83,9 +88,15 @@ export class CoinsListComponent implements OnInit {
     this.displayedCount += nextItems.length;
   }
 
-  unfollowCoin(coinId: string): void {
-    // this.coinsData = this.coinsData.filter(c => c.id !== coinId);
-    // this.allCoins = this.allCoins.filter(c => c.id !== coinId);
-    // this.displayedCount = this.coinsData.length;
+  unfollowCoin(coin: CoinDto): void {
+    this.priceAlertService.deletePriceAlertByCoinId(coin.id).subscribe({
+      next: () => {
+        this.snackBarService.success("Coin unfollowed successfully");
+        this.loadAllFollowedCoins();
+      },
+      error: (error) => {
+        this.snackBarService.error(error);
+      }
+    });
   }
 }

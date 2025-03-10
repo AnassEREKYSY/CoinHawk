@@ -15,13 +15,13 @@ import { Router } from '@angular/router';
 })
 export class CoinComponent {
   @Input() coin!: CoinDto;
-  @Output() unfollow: EventEmitter<string> = new EventEmitter<string>();
+  @Output() unfollow: EventEmitter<CoinDto> = new EventEmitter<CoinDto>();
 
   constructor(private router:Router){}
 
   unfollowCoin(event: Event): void {
     event.stopPropagation();
-    this.unfollow.emit(this.coin.id);
+    this.unfollow.emit(this.coin);
   }
 
   goToDetails(name: string) {

@@ -11,6 +11,6 @@ namespace Infrastructure.IServices
         Task<IEnumerable<NewsArticleDto>> GetNewsForFollowedCoinsAsync(string token);
         Task<IEnumerable<CoinDto>> ExtractFollowedCoinsFromAlerts(string userToken);
         Task DeletePriceAlertAsync(int alertId, string token);
-        Task DeletePriceAlertsByCoinAndTargetPriceAsync(string coinId, decimal targetPrice, string token);
+        Task DeletePriceAlertsByCoinAndTargetPriceAsync(string coinId, string token);
     }
 }

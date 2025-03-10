@@ -131,8 +131,8 @@ namespace API.Controllers
         }
 
 
-        [HttpDelete("delete-alerts-by-coin")]
-        public async Task<IActionResult> DeleteAlertsByCoin([FromQuery] string coinId, [FromQuery] decimal targetPrice)
+        [HttpDelete("delete-alerts-by-coin/{coinId}")]
+        public async Task<IActionResult> DeleteAlertsByCoin(string coinId)
         {
             var token = ExtractJwtToken();
             if (string.IsNullOrEmpty(token))
@@ -142,8 +142,8 @@ namespace API.Controllers
             
             try
             {
-                await _priceAlertService.DeletePriceAlertsByCoinAndTargetPriceAsync(coinId, targetPrice, token);
-                return Ok($"Alerts for coin {coinId} with target price {targetPrice} were successfully deleted.");
+                await _priceAlertService.DeletePriceAlertsByCoinAndTargetPriceAsync(coinId, token);
+                return Ok($"Alerts for coin {coinId} is successfully deleted.");
             }
             catch (Exception ex)
             {

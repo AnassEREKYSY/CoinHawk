@@ -19,29 +19,53 @@ namespace Infrastructure.Services
                 ?? throw new Exception("User not found in database.");
             var coin = await _coinService.GetCoinDataByNameAsync(coinName);
 
-            var priceAlert = new PriceAlert
+            var existingAlert = await _context.PriceAlerts.FirstOrDefaultAsync(a =>
+                a.UserId == user.Id && a.coinId == coin.Id);
+                
+            if (existingAlert != null)
             {
-                UserId = user.Id,
-                CoinName = coin.Name,
-                coinId = coin.Id,
-                TargetPrice = targetPrice,
-                AlertSetAt = DateTime.UtcNow,
-                IsNotified = false
-            };
-
-            _context.PriceAlerts.Add(priceAlert);
-            try
-            {
-                await _context.SaveChangesAsync();
+                existingAlert.TargetPrice = targetPrice;
+                existingAlert.AlertSetAt = DateTime.UtcNow;
+                
+                _context.PriceAlerts.Update(existingAlert);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating alert: {ex.Message}");
+                    Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                    throw;
+                }
+                return existingAlert;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error: {ex.Message}");
-                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
-                throw;
-            }
+                var priceAlert = new PriceAlert
+                {
+                    UserId = user.Id,
+                    CoinName = coin.Name,
+                    coinId = coin.Id,
+                    TargetPrice = targetPrice,
+                    AlertSetAt = DateTime.UtcNow,
+                    IsNotified = false
+                };
 
-            return priceAlert;
+                _context.PriceAlerts.Add(priceAlert);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating alert: {ex.Message}");
+                    Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                    throw;
+                }
+
+                return priceAlert;
+            }
         }
 
         public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
@@ -128,6 +152,14 @@ namespace Infrastructure.Services
             var alerts = await GetAllAlertsForUserAsync(userToken);
             var coinIds = alerts.Select(a => a.CoinId).ToList();
             var coinsData = await _coinService.GetMultipleCoinsDataAsync(coinIds);
+            foreach (var coin in coinsData)
+            {
+                var alertForCoin = alerts.FirstOrDefault(a => a.CoinId == coin.Id);
+                if (alertForCoin != null)
+                {
+                    coin.TargetPrice = alertForCoin.TargetPrice;
+                }
+            }
             return coinsData;
         }
 
@@ -162,7 +194,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task DeletePriceAlertsByCoinAndTargetPriceAsync(string coinId, decimal targetPrice, string token)
+        public async Task DeletePriceAlertsByCoinAndTargetPriceAsync(string coinId, string token)
         {
             var userEmail = ExtractUserIdFromToken(token);
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
@@ -174,7 +206,7 @@ namespace Infrastructure.Services
             }
 
             var alerts = await _context.PriceAlerts
-                .Where(a => a.UserId == user.Id && a.coinId == coinId && a.TargetPrice == targetPrice)
+                .Where(a => a.UserId == user.Id && a.coinId == coinId)
                 .ToListAsync();
 
             if (alerts.Count == 0)

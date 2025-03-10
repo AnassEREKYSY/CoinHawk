@@ -29,15 +29,15 @@ export class PriceAlertService {
     return this.http.delete<any>(`${environment.apiUrl}price-alerts/delete-alert/`+id,{ headers });
   }
 
-  deletePriceAlertByCoinId(coinId: string, targetPrice: number): Observable<any> {
+  deletePriceAlertByCoinId(coinId: string): Observable<any> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
     return this.http.delete<any>(
-      `${environment.apiUrl}price-alerts/delete-alerts-by-coin?coinId=${coinId}&targetPrice=${targetPrice}`,
-      { headers }
+      `${environment.apiUrl}price-alerts/delete-alerts-by-coin/` + coinId,
+      { headers, responseType: 'text' as 'json' }
     );
-  }  
+  }
   
 }

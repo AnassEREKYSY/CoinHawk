@@ -3,6 +3,7 @@ export interface CoinDto {
     name: string;
     symbol: string;
     currentPrice?: number;
+    targetPrice?: number;
     marketCap?: number;
     totalVolume?: number;
     thumb?: string;

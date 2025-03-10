@@ -19,7 +19,7 @@
     <app-coin 
       *ngFor="let coin of coinsData" 
       [coin]="coin"
-      (unfollow)="unfollowCoin($event)">
+      (unfollow)="unfollowCoin(coin)">
     </app-coin>
   </div>
 
