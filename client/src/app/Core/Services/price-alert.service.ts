@@ -19,5 +19,25 @@ export class PriceAlertService {
     });
     return this.http.post<PriceAlertDto[]>(`${environment.apiUrl}price-alerts/create-alert`,body ,{ headers });
   }
+
+
+  deletePriceAlertById(id:string): Observable<any> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.delete<any>(`${environment.apiUrl}price-alerts/delete-alert/`+id,{ headers });
+  }
+
+  deletePriceAlertByCoinId(coinId: string, targetPrice: number): Observable<any> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.delete<any>(
+      `${environment.apiUrl}price-alerts/delete-alerts-by-coin?coinId=${coinId}&targetPrice=${targetPrice}`,
+      { headers }
+    );
+  }  
   
 }

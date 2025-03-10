@@ -131,6 +131,70 @@ namespace Infrastructure.Services
             return coinsData;
         }
 
+        public async Task DeletePriceAlertAsync(int alertId, string token)
+        {
+            var userEmail = ExtractUserIdFromToken(token);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            
+            if (user == null)
+            {
+                Console.WriteLine("User not found in database.");
+                throw new Exception("User not found in database.");
+            }
+
+            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId) ?? throw new Exception("Alert not found.");
+
+            if (alert.UserId != user.Id)
+            {
+                throw new Exception("You are not authorized to delete this alert.");
+            }
+
+            _context.PriceAlerts.Remove(alert);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
+
+        public async Task DeletePriceAlertsByCoinAndTargetPriceAsync(string coinId, decimal targetPrice, string token)
+        {
+            var userEmail = ExtractUserIdFromToken(token);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            
+            if (user == null)
+            {
+                Console.WriteLine("User not found in database.");
+                throw new Exception("User not found in database.");
+            }
+
+            var alerts = await _context.PriceAlerts
+                .Where(a => a.UserId == user.Id && a.coinId == coinId && a.TargetPrice == targetPrice)
+                .ToListAsync();
+
+            if (alerts.Count == 0)
+            {
+                throw new Exception("No alerts found with the specified criteria.");
+            }
+
+            _context.PriceAlerts.RemoveRange(alerts);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting alerts: {ex.Message}");
+                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
 
         private string ExtractUserIdFromToken(string token)
         {

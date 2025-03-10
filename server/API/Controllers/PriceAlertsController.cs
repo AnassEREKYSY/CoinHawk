@@ -109,6 +109,49 @@ namespace API.Controllers
             }
         }
 
+
+        [HttpDelete("delete-alert/{alertId}")]
+        public async Task<IActionResult> DeletePriceAlert(int alertId)
+        {
+            var token = ExtractJwtToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Authorization header missing or invalid.");
+            }
+            
+            try
+            {
+                await _priceAlertService.DeletePriceAlertAsync(alertId, token);
+                return Ok($"Alert with Id {alertId} was successfully deleted.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpDelete("delete-alerts-by-coin")]
+        public async Task<IActionResult> DeleteAlertsByCoin([FromQuery] string coinId, [FromQuery] decimal targetPrice)
+        {
+            var token = ExtractJwtToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Authorization header missing or invalid.");
+            }
+            
+            try
+            {
+                await _priceAlertService.DeletePriceAlertsByCoinAndTargetPriceAsync(coinId, targetPrice, token);
+                return Ok($"Alerts for coin {coinId} with target price {targetPrice} were successfully deleted.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         private string ExtractJwtToken()
         {
             if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
