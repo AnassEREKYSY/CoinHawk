@@ -91,7 +91,6 @@ export class NavBarComponent implements OnInit {
         this.activeFollowCoin = null;
         this.followFormPosition = null;
         this.priceAlertNotifierService.notifyPriceAlert();
-        window.location.reload();
       },
       error: (error) => {
         this.snackBarService.error('Error creating price alert: ' + error);

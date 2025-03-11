@@ -1,19 +1,27 @@
-<div class="login-container">
-  <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d208683fad7ae6f2ce06c76d0a56.png" alt="Coin Logo" class="coin-image" />
-  <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
-    <input type="email" placeholder="Email" class="input-field" formControlName="email" />
-    <input type="password" placeholder="Password" class="input-field" formControlName="password" />
-    <a href="#" class="forgot-password">Forgot password?</a>
-    <div class="button-container">
-      <button class="btn" type="submit" [disabled]="isLoading">
-        <ng-container *ngIf="!isLoading; else loading">
-          Connexion
-        </ng-container>
-        <ng-template #loading>
-          <span class="spinner"></span>
-        </ng-template>
-      </button>
-      <button class="btn" type="button" (click)="RedirectToRegister()">Register</button>
+<div class="login-page">
+  <div class="left-section">
+    <div class="welcome-text">
+      <h1>Welcome back!</h1>
+      <p>Coin hawk your ultimate cryptocurrency companion.</p>
     </div>
-  </form>
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
+      <input type="email" placeholder="Email" class="input-field" formControlName="email" />
+      <input type="password" placeholder="Password" class="input-field" formControlName="password" />
+      <a href="#" class="forgot-password">Forgot password?</a>
+      <div class="button-container">
+        <button class="btn" type="submit" [disabled]="isLoading">
+          <ng-container *ngIf="!isLoading; else loading">
+            Connexion
+          </ng-container>
+          <ng-template #loading>
+            <span class="spinner"></span>
+          </ng-template>
+        </button>
+        <button class="btn" type="button" (click)="RedirectToRegister()">Register</button>
+      </div>
+    </form>
+  </div>
+  <div class="right-section">
+    <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d208683fad7ae6f2ce06c76d0a56.png" alt="Coin Logo" class="coin-image" />
+  </div>
 </div>
