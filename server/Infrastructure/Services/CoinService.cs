@@ -226,5 +226,62 @@ namespace Infrastructure.Services
             return filteredCoins;
         }
 
+
+        public async Task<List<decimal[]>> GetMarketOhlcByCoinIdAsync(string coinId, int days)
+        {
+            string cacheKey = $"market-ohlc:{coinId}:{days}";
+            var cachedData = await _cache.GetStringAsync(cacheKey);
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<List<decimal[]>>(cachedData);
+            }
+
+            List<decimal[]> ohlcData;
+            try
+            {
+                var ohlcResult = await GetOhlcDataFromCoinGecko(coinId, days);
+                ohlcData = [.. ohlcResult.Select(arr => arr.ToArray())];
+                var options = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+                };
+                await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(ohlcData), options);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("429"))
+                {
+                    var errorOptions = new DistributedCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
+                    };
+                    await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(new { error = "429" }), errorOptions);
+                    throw new Exception("Rate limit exceeded for CoinGecko API. Please try again later.");
+                }
+                throw;
+            }
+
+            return ohlcData;
+        }
+
+        private async Task<List<decimal[]>> GetOhlcDataFromCoinGecko(string coinId, int days)
+        {
+            
+            var url = $"coins/{coinId}/ohlc?vs_currency=usd&days={days}";
+            using var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("https://api.coingecko.com/api/v3/")
+            };
+
+            var response = await httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var data = JsonSerializer.Deserialize<List<List<decimal?>>>(jsonString) ?? throw new Exception("OHLC data is null");
+
+            return data.Select(arr => arr.Select(x => x ?? 0M).ToArray()).ToList();
+        }
+
+
     }
 }

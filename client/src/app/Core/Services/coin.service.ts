@@ -25,6 +25,10 @@ export class CoinService {
     return this.http.get<number[][]>(`${this.apiUrl}coins/get-coin-market-chart/${coinName}/market-chart?days=${days}`);
   }
 
+  getCoinOhlc(coinName: string, days: number): Observable<number[][]> {
+    return this.http.get<number[][]>(`${this.apiUrl}coins/get-coin-ohlc/${coinName}?days=${days}`);
+  }  
+
   getCoinInfo(coinName: string, days: number): Observable<CoinDto> {
     return this.http.get<CoinDto>(`${this.apiUrl}coins/get-coin-details-info/${coinName}?days=${days}`);
   }

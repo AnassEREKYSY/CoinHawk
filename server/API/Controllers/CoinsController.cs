@@ -97,5 +97,30 @@ namespace API.Controllers
             }
         }
        
+
+        [HttpGet("get-coin-ohlc/{coinName}")]
+        public async Task<IActionResult> GetCoinOhlcData(string coinName, [FromQuery] int days)
+        {
+            try
+            {
+                var coinData = await _coinService.GetCoinDataByNameAsync(coinName);
+                if (coinData == null)
+                {
+                    return NotFound($"Coin data for '{coinName}' not found.");
+                }
+
+                var ohlcData = await _coinService.GetMarketOhlcByCoinIdAsync(coinData.Id, days);
+                if (ohlcData == null || !ohlcData.Any())
+                {
+                    return NotFound($"OHLC data for '{coinName}' not found.");
+                }
+                return Ok(ohlcData);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

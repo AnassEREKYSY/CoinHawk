@@ -12,5 +12,6 @@ namespace Infrastructure.IServices
         Task<IEnumerable<CoinDto>> GetFollowedCoins(string userToken);
         Task<List<CoinDto>> GetMultipleCoinsDataAsync(IEnumerable<string> coinIds);
         Task<IEnumerable<CoinDto>> SearchCoinsAsync(string searchTerm);
+        Task<List<decimal[]>> GetMarketOhlcByCoinIdAsync(string coinId, int days);
     }
 }

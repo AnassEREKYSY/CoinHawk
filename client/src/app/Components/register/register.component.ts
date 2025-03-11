@@ -3,10 +3,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../Core/Services/auth.service';
 import { SnackBarService } from '../../Core/Services/snack-bar.service';
 import { Router } from '@angular/router';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    MatIconModule
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -46,5 +50,9 @@ export class RegisterComponent {
         this.snackBarService.error('Register failed try again ')
       }
     );
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/login']); 
   }
 }

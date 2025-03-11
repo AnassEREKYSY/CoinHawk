@@ -1,8 +1,11 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {Component,ElementRef,OnInit,AfterViewInit,ViewChild} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CoinService } from '../../Core/Services/coin.service';
 import { CoinDto } from '../../Core/Dtos/CoinDto';
 import { Chart } from 'chart.js/auto';
+import {CandlestickController,CandlestickElement,OhlcController,OhlcElement} from 'chartjs-chart-financial';
+Chart.register(CandlestickController, CandlestickElement, OhlcController, OhlcElement);
+import 'chartjs-adapter-date-fns';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,15 +16,16 @@ import { CommonModule } from '@angular/common';
   templateUrl: './coin-details.component.html',
   styleUrls: ['./coin-details.component.scss']
 })
-export class CoinDetailsComponent implements OnInit {
-  
-  @ViewChild('marketChartCanvas', { static: false }) chartCanvas!: ElementRef;
+export class CoinDetailsComponent implements OnInit, AfterViewInit {
 
-  coinName: string = '';
-  coinData: CoinDto | undefined;
-  marketChart: number[][] = [];
-  selectedDuration: number = 7;
-  chart: any;
+  @ViewChild('marketChartCanvas', { static: false })
+  chartCanvas!: ElementRef<HTMLCanvasElement>;
+
+  coinName = '';
+  coinData?: CoinDto;
+  marketChart: CandlestickPoint[] = [];
+  selectedDuration = 7;
+  chart?: Chart;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,11 +42,21 @@ export class CoinDetailsComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    if (this.marketChart?.length) {
+      this.updateChartAsCandlestick();
+    }
+  }
+
   fetchCoinData(): void {
-    this.coinService.getCoinData(this.coinName).subscribe(
-      data => this.coinData = data,
-      error => console.error('Failed to load coin data', error)
-    );
+    this.coinService.getCoinData(this.coinName).subscribe({
+      next: (data) => {
+        this.coinData = data;
+      },
+      error: (err) => {
+        console.error('Failed to load coin data', err);
+      }
+    });
   }
 
   changeDuration(days: number): void {
@@ -51,42 +65,70 @@ export class CoinDetailsComponent implements OnInit {
   }
 
   fetchMarketChart(): void {
-    this.coinService.getCoinMarketChart(this.coinName, this.selectedDuration).subscribe(
-      data => {
-        this.marketChart = data;
-        setTimeout(() => this.updateChart(), 0); 
+    this.coinService.getCoinOhlc(this.coinName, this.selectedDuration).subscribe({
+      next: (data) => {
+        console.log('OHLC data', data);
+        this.marketChart = data.map(([time, open, high, low, close]) => ({
+          x: time,
+          o: open,
+          h: high,
+          l: low,
+          c: close
+        }));
+
+        if (this.chartCanvas?.nativeElement) {
+          this.updateChartAsCandlestick();
+        }
       },
-      error => console.error('Failed to load market chart', error)
-    );
+      error: (err) => {
+        console.error('Failed to load candlestick data', err);
+      }
+    });
   }
 
-  updateChart(): void {
-    if (!this.chartCanvas || !this.chartCanvas.nativeElement) {
-      console.error("Canvas element not found");
+  updateChartAsCandlestick(): void {
+    if (!this.chartCanvas?.nativeElement) {
+      console.error('Canvas element not found');
       return;
     }
+
     if (this.chart) {
       this.chart.destroy();
     }
 
     this.chart = new Chart(this.chartCanvas.nativeElement, {
-      type: 'line',
+      type: 'candlestick',
       data: {
-        labels: this.marketChart.map(entry => new Date(entry[0]).toLocaleDateString()),
-        datasets: [{
-          label: `${this.coinData?.name} Price`,
-          data: this.marketChart.map(entry => entry[1]),
-          borderColor: '#1db954',
-          backgroundColor: 'rgba(29, 185, 84, 0.2)',
-          fill: true
-        }]
+        datasets: [
+          {
+            label: `${this.coinData?.name} Price`,
+            data: this.marketChart,
+
+            borderColor: (ctx) => {
+              const candle = ctx.raw as CandlestickPoint;
+              if (!candle) return '#999999';
+              return candle.c > candle.o ? '#1db954' : '#ff0000';
+            },
+            backgroundColor: (ctx) => {
+              const candle = ctx.raw as CandlestickPoint;
+              if (!candle) return 'rgba(153,153,153,0.2)';
+              return candle.c > candle.o
+                ? 'rgba(29,185,84,0.2)'
+                : 'rgba(255,0,0,0.2)';
+            }
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: { display: true },
-          y: { display: true }
+          x: {
+            type: 'time'
+          },
+          y: {
+            beginAtZero: false
+          }
         }
       }
     });
