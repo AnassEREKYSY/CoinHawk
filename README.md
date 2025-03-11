@@ -6,7 +6,7 @@ Designed for traders of all levels.
 ### Features
 
 1. Login: 
-    ![CoinHawk Login](assets/SpotifyLogin.png)
+    ![CoinHawk Login](assets/Login.png)
 
 2. Register: 
     ![CoinHawk Register](assets/Register.png)
