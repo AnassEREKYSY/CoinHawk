@@ -12,16 +12,16 @@ Designed for traders of all levels.
     ![CoinHawk Register](assets/Register.png)
 
 3. DashBoard : 
-    ![CoinHawk Dahsboard](images/Coin-Dashboard.png)
-    ![CoinHawk Search](images/Search.png)
+    ![CoinHawk Dahsboard](assets/Coin-Dashboard.png)
+    ![CoinHawk Search](assets/Search.png)
 
 4. User Profile: 
-    ![CoinHawk Profile](images/Profile-1.png)
-    ![CoinHawk Profile](images/Profile-2.png)
+    ![CoinHawk Profile](assets/Profile-1.png)
+    ![CoinHawk Profile](assets/Profile-2.png)
     View user profile details.
 
 5. Coin Details: 
-    ![CoinHawk Details](images/Coin-Details.png)
+    ![CoinHawk Details](assets/Coin-Details.png)
 
 ## Technology Stack
 
