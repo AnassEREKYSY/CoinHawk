@@ -1,4 +1,6 @@
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Core.Entities;
@@ -9,9 +11,7 @@ using Infrastructure.Services;
 using Infrastructure.IServices;
 using CoinGecko.Clients;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.Caching.StackExchangeRedis; // <-- For Redis
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policyBuilder => policyBuilder
-            .WithOrigins("http://localhost:4200") 
+            .WithOrigins("http://localhost:4200")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -40,16 +40,17 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 // 4) Redis cache
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    // Replace with your actual Redis endpoint. For example:
-    // "localhost:6379" or "your-redis-host:6379"  docker example
+    // For local Docker Redis
     options.Configuration = "localhost:6379";
-    options.InstanceName = "CoinHawk:"; 
+    options.InstanceName = "CoinHawk:";
 });
 
-// 5) CoinGecko + Services
+// 5) External services & custom services
+
+// 5a) CoinGecko Client
 builder.Services.AddSingleton<CoinGeckoClient>();
 
-// Inject the Distributed Cache into CoinService
+// 5b) Services
 builder.Services.AddScoped<ICoinService, CoinService>(serviceProvider =>
 {
     var client = serviceProvider.GetRequiredService<CoinGeckoClient>();
@@ -70,14 +71,16 @@ builder.Services.AddControllers(options =>
 .AddJsonOptions(options =>
 {
     // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-    // options.JsonSerializerOptions.MaxDepth = 32;
 });
 
-// 7) Swagger
+// 7) Swagger (for development / API exploration)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 8) JWT Authentication
+/*
+ * 8) (Commented Out) Old JWT Authentication
+ * Uncomment if you still want to validate locally-issued JWTs.
+ *
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -85,21 +88,57 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    var jwtSettings = builder.Configuration.GetSection("Jwt");
+    var secretKey = jwtSettings["SecretKey"];
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
+*/
+
+// 8) Keycloak via OpenID Connect
+builder.Services
+    .AddAuthentication(options =>
+    {
+        // The default scheme for user sign-in
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        // The default challenge scheme is OIDC
+        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+    })
+    .AddCookie() // We need cookies to track the user's logged-in session
+    .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+    {
+        options.Authority = "http://localhost:8082/realms/myrealm";
+
+        options.ClientId = "coin-hawk-app";
+
+        // For a “confidential” client, specify your client secret
+        options.ClientSecret = "<Keycloak Client Secret>";
+
+        // Use the standard code flow
+        options.ResponseType = "code";
+
+        // Must match the redirect URI set in Keycloak
+        // E.g. http://localhost:5000/signin-oidc or similar
+        options.CallbackPath = "/signin-oidc";
+
+        // Save tokens in the auth session if you need them later
+        options.SaveTokens = true;
+
+        // If Keycloak is running on HTTP in dev, you might disable HTTPS metadata
+        // options.RequireHttpsMetadata = false;
+    });
 
 var app = builder.Build();
 
-// 9) Middlewares
+// 9) Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -108,6 +147,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+
+// Enable auth (cookies + OIDC)
 app.UseAuthentication();
 app.UseAuthorization();
 
