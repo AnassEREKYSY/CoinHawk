@@ -3,7 +3,7 @@ version: '3.8'
 services:
   sql:
     image: mcr.microsoft.com/azure-sql-edge
-    environment: 
+    environment:
       ACCEPT_EULA: "1"
       SA_PASSWORD: "Password@1"
     ports:
@@ -19,6 +19,22 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: mssql
+      KC_DB_URL: "jdbc:sqlserver://sql:1433;databaseName=CryptoTrackerDB;encrypt=false;trustServerCertificate=true"
+      KC_DB_USERNAME: sa
+      KC_DB_PASSWORD: "Password@1"
+      KC_HTTP_PORT: 8082
+    command: ["start-dev", "--http-port=8082"]
+    depends_on:
+      - sql
+    ports:
+      - "8082:8082"
 
 volumes:
   sql-data:
