@@ -15,6 +15,9 @@ export function initializeKeycloak(keycloak: KeycloakService) {
           redirectUri: 'http://localhost:4200/dashboard'
         },
       })
+      .then(() => {
+        return keycloak.login({ prompt: 'login', redirectUri: 'http://localhost:4200/dashboard' });
+      });
       
       // .then(() => {
       //   const el = document.getElementById('app-wrapper');

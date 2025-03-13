@@ -1,0 +1,101 @@
+.login-page {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    background: linear-gradient(to top, rgb(218, 218, 218), rgb(33, 33, 33));
+  }
+  .left-section {
+    flex: 1;
+    background: transparent;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px;
+  }
+  .right-section {
+    flex: 1;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px;
+  }
+  .welcome-text {
+    text-align: center;
+  }
+  .welcome-text h1 {
+    font-size: 78px;
+    margin-bottom: 1px;
+  }
+  .welcome-text p {
+    font-size: 26px;
+    margin-bottom: 50px;
+  }
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    width: 490px;
+    align-items: center;
+  }
+  .input-field {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 25px;
+    border: 1px solid white;
+    border-radius: 10px;
+    background: transparent;
+    color: white;
+  }
+  .input-field::placeholder {
+    color: white;
+    border: 1px solid white;
+  }
+  .forgot-password {
+    color: white;
+    text-decoration: underline;
+    align-self: flex-end;
+    margin-bottom: 20px;
+    font-size: 17px;
+  }
+  .button-container {
+    display: flex;
+    gap: 20px;
+  }
+  .btn {
+    border-radius: 50px;
+    width: 180px;
+    height: 40px;
+    background: white;
+    color: black;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(46, 46, 46, 0.3);
+  }
+  .coin-image {
+    width: 88%;
+    max-width: 550px;
+    object-fit: contain;
+  }
+  .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    border-top-color: black;
+    animation: spin 1s ease-in-out infinite;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  

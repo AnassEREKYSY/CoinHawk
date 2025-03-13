@@ -35,6 +35,8 @@ services:
       - sql
     ports:
       - "8082:8082"
+    volumes:
+      - "D:/My Data/Projects/CoinHawk/client/keycloak-theme:/opt/keycloak/themes/keycloak-theme:ro"
 
 volumes:
   sql-data:
