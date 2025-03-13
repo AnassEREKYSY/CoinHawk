@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../envirnoments/envirnoments.development';
 import { CoinDto } from '../Dtos/CoinDto';
+import { KeycloakService } from 'keycloak-angular';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class CoinService {
 
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private keycloakService: KeycloakService) {}
 
   getAllCoins(): Observable<CoinDto[]> {
     return this.http.get<CoinDto[]>(`${this.apiUrl}coins/get-all-coins`);
@@ -37,8 +38,8 @@ export class CoinService {
     return this.http.get<CoinDto[]>(`${this.apiUrl}coins/get-trending-coins`);
   }
 
-  getFollowedCoins(): Observable<CoinDto[]> {
-    const token = localStorage.getItem('auth_token');
+  async getFollowedCoins(): Promise<Observable<CoinDto[]>> {
+    const token = await this.keycloakService.getToken();
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });

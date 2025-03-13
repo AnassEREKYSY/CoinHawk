@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
-    public class PriceAlertService(ApplicationContext _context,ICoinService _coinService,INewsService _newsService) : IPriceAlertService
+    public class PriceAlertService(ApplicationContext _context,ICoinService _coinService,INewsService _newsService, IJwtTokenDecoderService _jwtTokenDecoderService) : IPriceAlertService
     {
 
         public async Task<PriceAlert> CreatePriceAlertAsync(string userToken, string coinName, decimal targetPrice)
         {
-            var userEmail = ExtractUserIdFromToken(userToken);
-
+            var payload = _jwtTokenDecoderService.GetTokenPayload(userToken);
+            var userEmail = payload.TryGetValue("email", out var emailObj) ? emailObj?.ToString() : null;
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail)
                 ?? throw new Exception("User not found in database.");
             var coin = await _coinService.GetCoinDataByNameAsync(coinName);
@@ -70,25 +70,12 @@ namespace Infrastructure.Services
 
         public async Task<IEnumerable<PriceAlertDto>> GetAllAlertsForUserAsync(string token)
         {
-            var userEmail = ExtractUserIdFromToken(token);
-            Console.WriteLine($"Extracted User Email from Token: {userEmail}");
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
-            
-            if (user == null)
-            {
-                Console.WriteLine("User not found in database.");
-                throw new Exception("User not found in database.");
-            }
-
-            Console.WriteLine($"User found: {user.Id} (Email: {user.Email})");
-
+            var payload = _jwtTokenDecoderService.GetTokenPayload(token);
+            var userEmail = payload.TryGetValue("email", out var emailObj) ? emailObj?.ToString() : null;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.");
             var alerts = await _context.PriceAlerts
                 .Where(a => a.UserId == user.Id)
                 .ToListAsync();
-
-            Console.WriteLine($"Total alerts found: {alerts.Count}");
-
             var result = alerts.Select(alert => new PriceAlertDto
             {
                 Id = alert.Id,
@@ -106,9 +93,10 @@ namespace Infrastructure.Services
 
         public async Task<PriceAlertDto> GetAlertForUserAsync(int alertId, string token)
         {
-            var userId = ExtractUserIdFromToken(token);
-
-            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == userId)
+            var payload = _jwtTokenDecoderService.GetTokenPayload(token);
+            var userEmail = payload.TryGetValue("email", out var emailObj) ? emailObj?.ToString() : null;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.");
+            var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId && a.UserId == user.Id)
                 ?? throw new Exception("Alert not found or you are not authorized to access this alert.");
             var coinInfo = await _coinService.GetCoinInfoAsync(alert.CoinName, 7);
 
@@ -165,15 +153,9 @@ namespace Infrastructure.Services
 
         public async Task DeletePriceAlertAsync(int alertId, string token)
         {
-            var userEmail = ExtractUserIdFromToken(token);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
-            
-            if (user == null)
-            {
-                Console.WriteLine("User not found in database.");
-                throw new Exception("User not found in database.");
-            }
-
+            var payload = _jwtTokenDecoderService.GetTokenPayload(token);
+            var userEmail = payload.TryGetValue("email", out var emailObj) ? emailObj?.ToString() : null;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.");
             var alert = await _context.PriceAlerts.FirstOrDefaultAsync(a => a.Id == alertId) ?? throw new Exception("Alert not found.");
 
             if (alert.UserId != user.Id)
@@ -196,15 +178,9 @@ namespace Infrastructure.Services
 
         public async Task DeletePriceAlertsByCoinAndTargetPriceAsync(string coinId, string token)
         {
-            var userEmail = ExtractUserIdFromToken(token);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
-            
-            if (user == null)
-            {
-                Console.WriteLine("User not found in database.");
-                throw new Exception("User not found in database.");
-            }
-
+            var payload = _jwtTokenDecoderService.GetTokenPayload(token);
+            var userEmail = payload.TryGetValue("email", out var emailObj) ? emailObj?.ToString() : null;
+            var user = (await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail) ?? throw new Exception("User not found in database.")) ?? throw new Exception("User not found in database.");
             var alerts = await _context.PriceAlerts
                 .Where(a => a.UserId == user.Id && a.coinId == coinId)
                 .ToListAsync();
@@ -227,15 +203,5 @@ namespace Infrastructure.Services
                 throw;
             }
         }
-
-        private string ExtractUserIdFromToken(string token)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "sub") ?? throw new Exception("User identifier not found in token.");
-            return userIdClaim.Value;
-        }
-
     }
 }

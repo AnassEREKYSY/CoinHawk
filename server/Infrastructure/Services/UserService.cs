@@ -10,7 +10,7 @@ using Infrastructure.IServices;
 
 namespace Infrastructure.Services
 {
-    public class UserService(UserManager<AppUser> _userManager, IConfiguration _configuration) : IUserService
+    public class UserService(UserManager<AppUser> _userManager, IConfiguration _configuration, IJwtTokenDecoderService _jwtTokenDecoderService) : IUserService
     {
         public async Task<AuthenticationResultDto> RegisterAsync(RegisterDto request)
         {
@@ -66,8 +66,9 @@ namespace Infrastructure.Services
 
         public async Task<UserProfileDto> GetUserProfileAsync(string token)
         {
-            var userId = ExtractUserIdFromToken(token);
-            var user = await _userManager.FindByEmailAsync(userId) ?? throw new Exception("User not found");
+            var payload = _jwtTokenDecoderService.GetTokenPayload(token);
+            var userEmail = payload.TryGetValue("email", out var emailObj) ? emailObj?.ToString() : null;
+            var user = await _userManager.FindByEmailAsync(userEmail) ?? throw new Exception("User not found");
             return new UserProfileDto
             {
                 Id = user.Id,
@@ -159,13 +160,5 @@ namespace Infrastructure.Services
             };
         }
 
-        private string ExtractUserIdFromToken(string token)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => 
-                c.Type == ClaimTypes.NameIdentifier || c.Type == JwtRegisteredClaimNames.Sub) ?? throw new Exception("User identifier not found in token.");
-            return userIdClaim.Value;
-        }
     }
 }

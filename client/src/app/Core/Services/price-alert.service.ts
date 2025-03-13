@@ -4,16 +4,17 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../envirnoments/envirnoments.development';
 import { CoinDto } from '../Dtos/CoinDto';
 import { PriceAlertDto } from '../Dtos/PriceAlertDto';
+import { KeycloakService } from 'keycloak-angular';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PriceAlertService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,  private keycloakService: KeycloakService) {}
 
-  createPriceAlert(body:PriceAlertDto): Observable<PriceAlertDto[]> {
-    const token = localStorage.getItem('auth_token');
+  async createPriceAlert(body:PriceAlertDto): Promise<Observable<PriceAlertDto[]>> {
+    const token = await this.keycloakService.getToken();
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -21,16 +22,16 @@ export class PriceAlertService {
   }
 
 
-  deletePriceAlertById(id:string): Observable<any> {
-    const token = localStorage.getItem('auth_token');
+  async deletePriceAlertById(id:string): Promise<Observable<any>> {
+    const token = await this.keycloakService.getToken();
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
     return this.http.delete<any>(`${environment.apiUrl}price-alerts/delete-alert/`+id,{ headers });
   }
 
-  deletePriceAlertByCoinId(coinId: string): Observable<any> {
-    const token = localStorage.getItem('auth_token');
+  async deletePriceAlertByCoinId(coinId: string): Promise<Observable<any>> {
+    const token = await this.keycloakService.getToken();
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });

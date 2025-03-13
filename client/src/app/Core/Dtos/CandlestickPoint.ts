@@ -1,4 +1,4 @@
-interface CandlestickPoint {
+export interface CandlestickPoint {
   x: number; 
   o: number;
   h: number;

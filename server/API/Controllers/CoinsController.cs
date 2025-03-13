@@ -97,7 +97,6 @@ namespace API.Controllers
             }
         }
        
-
         [HttpGet("get-coin-ohlc/{coinName}")]
         public async Task<IActionResult> GetCoinOhlcData(string coinName, [FromQuery] int days)
         {

@@ -1,13 +1,13 @@
 using Infrastructure.Dtos;
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    public class UserController(IUserService _userService) : ControllerBase
+    public class UserController(IUserService _userService, IJwtTokenDecoderService _jwtTokenDecoderService) : ControllerBase
     {
         
         [HttpPost("register")]
@@ -28,11 +28,19 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("login-callBack")]
+        public async Task<IActionResult> LoginCallBack([FromBody] LoginDto request)
+        {
+            var result = await _userService.LoginAsync(request);
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result);
+        }
 
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
@@ -64,20 +72,6 @@ namespace API.Controllers
             if (!result.Success)
                 return BadRequest(result);
             return Ok(result);
-        }
-
-        private string ExtractJwtToken()
-        {
-            if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
-            {
-                return null;
-            }
-            var token = authHeader.ToString();
-            if (token.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
-            {
-                token = token.Substring("Bearer ".Length).Trim();
-            }
-            return token;
         }
 
     }

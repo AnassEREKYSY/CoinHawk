@@ -51,9 +51,9 @@ export class CoinsListComponent implements OnInit {
     });
   }
 
-  loadAllFollowedCoins() {
+  async loadAllFollowedCoins() {
     this.isLoading = true;
-    this.coinService.getFollowedCoins().subscribe({
+    (await this.coinService.getFollowedCoins()).subscribe({
       next: (coins) => {
         this.allCoins = coins || [];
         this.coinsData = [];
@@ -88,8 +88,8 @@ export class CoinsListComponent implements OnInit {
     this.displayedCount += nextItems.length;
   }
 
-  unfollowCoin(coin: CoinDto): void {
-    this.priceAlertService.deletePriceAlertByCoinId(coin.id).subscribe({
+  async unfollowCoin(coin: CoinDto): Promise<void> {
+    (await this.priceAlertService.deletePriceAlertByCoinId(coin.id)).subscribe({
       next: () => {
         this.snackBarService.success("Coin unfollowed successfully");
         this.loadAllFollowedCoins();

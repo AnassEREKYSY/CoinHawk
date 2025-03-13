@@ -3,18 +3,17 @@ import { environment } from '../../../envirnoments/envirnoments.development';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProfileDto } from '../Dtos/ProfileDto';
+import { KeycloakService } from 'keycloak-angular';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  private apiUrl = environment.apiUrl;
+  constructor(private http: HttpClient, private keycloakService: KeycloakService) {}
 
-  constructor(private http: HttpClient) {}
-
-  getUserProfile(): Observable<ProfileDto> {
-    const token = localStorage.getItem('auth_token');
+  async getUserProfile(): Promise<Observable<ProfileDto>> {
+    const token = await this.keycloakService.getToken();
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });

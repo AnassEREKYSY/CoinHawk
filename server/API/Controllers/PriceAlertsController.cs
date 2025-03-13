@@ -6,18 +6,17 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/price-alerts")]
-    public class PriceAlertsController(IPriceAlertService _priceAlertService) : ControllerBase
+    public class PriceAlertsController(IPriceAlertService _priceAlertService, IJwtTokenDecoderService _jwtTokenDecoderService) : ControllerBase
     {
 
         [HttpPost("create-alert")]
         public async Task<IActionResult> CreatePriceAlert([FromBody] CreatePriceAlertDto createAlertDto)
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
             }
-
             try
             {
                 var alert = await _priceAlertService.CreatePriceAlertAsync(token, createAlertDto.CoinName, createAlertDto.TargetPrice);
@@ -32,12 +31,11 @@ namespace API.Controllers
         [HttpGet("user-alerts")]
         public async Task<IActionResult> GetAllUserAlerts()
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
             }
-
             try
             {
                 var alerts = await _priceAlertService.GetAllAlertsForUserAsync(token);
@@ -52,12 +50,11 @@ namespace API.Controllers
         [HttpGet("user-one-alert/{alertId}")]
         public async Task<IActionResult> GetUserAlert(int alertId)
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
             }
-
             try
             {
                 var alert = await _priceAlertService.GetAlertForUserAsync(alertId, token);
@@ -72,7 +69,7 @@ namespace API.Controllers
         [HttpGet("get-followed-coins")]
         public async Task<IActionResult> GetFollowedCoins()
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
@@ -92,7 +89,7 @@ namespace API.Controllers
         [HttpGet("coin-news")]
         public async Task<IActionResult> GetNewsForFollowedCoins()
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
@@ -109,11 +106,10 @@ namespace API.Controllers
             }
         }
 
-
         [HttpDelete("delete-alert/{alertId}")]
         public async Task<IActionResult> DeletePriceAlert(int alertId)
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
@@ -130,11 +126,10 @@ namespace API.Controllers
             }
         }
 
-
         [HttpDelete("delete-alerts-by-coin/{coinId}")]
         public async Task<IActionResult> DeleteAlertsByCoin(string coinId)
         {
-            var token = ExtractJwtToken();
+            var token = _jwtTokenDecoderService.GetTokenFromHeaders(Request);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Authorization header missing or invalid.");
@@ -149,23 +144,6 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-
-        private string ExtractJwtToken()
-        {
-            if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
-            {
-                return null;
-            }
-
-            var token = authHeader.ToString();
-            if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-            {
-                return token.Substring("Bearer ".Length).Trim();
-            }
-
-            return token;
         }
 
     }

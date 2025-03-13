@@ -9,6 +9,7 @@ import { PriceAlertService } from '../../Core/Services/price-alert.service';
 import { CoinDto } from '../../Core/Dtos/CoinDto';
 import { SnackBarService } from '../../Core/Services/snack-bar.service';
 import { PriceAlertNotifierService } from '../../Core/Services/price-alert-notifier.service';
+import { AuthService } from '../../Core/Services/auth.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -34,6 +35,7 @@ export class NavBarComponent implements OnInit {
     private priceAlertService: PriceAlertService,
     private snackBarService: SnackBarService,
     private priceAlertNotifierService: PriceAlertNotifierService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {}
@@ -46,9 +48,11 @@ export class NavBarComponent implements OnInit {
     this.router.navigate(['/profile']);
   }
 
-  logout(){
-    localStorage.removeItem('auth_token');
-    this.router.navigate(['/login']);
+  logout() {
+    this.authService.logout()
+      .catch(err => {
+        console.error('Logout failed:', err);
+      });
   }
 
   onSearchInput(): void {
@@ -80,12 +84,12 @@ export class NavBarComponent implements OnInit {
     }
   }
 
-  submitFollow(): void {
+  async submitFollow(): Promise<void> {
     if (!this.activeFollowCoin) return;
     const coinName = this.activeFollowCoin.name;
     const targetPrice = this.followTargetPrices[this.activeFollowCoin.id];
     const body = { coinName, targetPrice };
-    this.priceAlertService.createPriceAlert(body).subscribe({
+    (await this.priceAlertService.createPriceAlert(body)).subscribe({
       next: () => {
         this.snackBarService.success('Price Alert Created');
         this.activeFollowCoin = null;

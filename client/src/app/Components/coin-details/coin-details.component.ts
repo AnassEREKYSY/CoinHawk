@@ -7,6 +7,7 @@ import {CandlestickController,CandlestickElement,OhlcController,OhlcElement} fro
 Chart.register(CandlestickController, CandlestickElement, OhlcController, OhlcElement);
 import 'chartjs-adapter-date-fns';
 import { CommonModule } from '@angular/common';
+import { CandlestickPoint } from '../../Core/Dtos/CandlestickPoint';
 
 @Component({
   selector: 'app-coin-details',

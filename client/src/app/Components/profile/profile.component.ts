@@ -46,8 +46,8 @@ export class ProfileComponent implements OnInit {
     this.getUserProfile();
   }
 
-  getUserProfile(){
-    this.userService.getUserProfile().subscribe(
+  async getUserProfile(){
+    (await this.userService.getUserProfile()).subscribe(
       (response) => {
         this.userProfile = response;
         this.profileForm.patchValue({
