@@ -33,6 +33,8 @@ Designed for traders of all levels.
 
 4. Cache: Redis
 
+5. Authentication: KeyCloak
+
 ## Getting Started
 Follow these steps to set up and run the application locally.
 
