@@ -67,16 +67,18 @@ namespace Infrastructure.Services
         public async Task<UserProfileDto> GetUserProfileAsync(string token)
         {
             var payload = _jwtTokenDecoderService.GetTokenPayload(token);
-            var userEmail = payload.TryGetValue("email", out var emailObj) ? emailObj?.ToString() : null;
-            var user = await _userManager.FindByEmailAsync(userEmail) ?? throw new Exception("User not found");
-            return new UserProfileDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Password =user.PasswordHash
-            };
+
+                payload.TryGetValue("given_name", out var givenName);
+                payload.TryGetValue("family_name", out var familyName);
+                payload.TryGetValue("email", out var email);
+
+                return new UserProfileDto
+                {
+                    FirstName = givenName?.ToString(),
+                    LastName = familyName?.ToString(),
+                    Email = email?.ToString(),
+                    Password = null
+                };
         }
 
         public async Task<AuthenticationResultDto> ForgotPasswordAsync(ForgotPasswordDto request)

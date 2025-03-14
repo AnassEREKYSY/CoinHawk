@@ -47,11 +47,7 @@ namespace Infrastructure.Services
             var coins = await GetAllCoinsAsync();
             var coin = coins.FirstOrDefault(c =>
                 string.Equals(c.Name, coinName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(c.Symbol, coinName, StringComparison.OrdinalIgnoreCase));
-            if(coin == null)
-            {
-                throw new Exception($"Coin with name or symbol '{coinName}' not found.");
-            }
+                string.Equals(c.Symbol, coinName, StringComparison.OrdinalIgnoreCase)) ?? throw new Exception($"Coin with name or symbol '{coinName}' not found.");
             var coinData = await _client.CoinsClient.GetAllCoinDataWithId(coin.Id)
                 ?? throw new Exception($"Failed to retrieve data for coin ID: {coin.Id}");
 
@@ -75,7 +71,7 @@ namespace Infrastructure.Services
             return coinDto;
         }
 
-        public async Task<IEnumerable<CoinDto>> GetFollowedCoins(string userToken)
+        public async Task<IEnumerable<CoinDto>> GetFollowedCoins()
         {
 
             var coinListResult = await GetAllCoinsAsync();
@@ -226,7 +222,6 @@ namespace Infrastructure.Services
             return filteredCoins;
         }
 
-
         public async Task<List<decimal[]>> GetMarketOhlcByCoinIdAsync(string coinId, int days)
         {
             string cacheKey = $"market-ohlc:{coinId}:{days}";
@@ -266,13 +261,14 @@ namespace Infrastructure.Services
 
         private async Task<List<decimal[]>> GetOhlcDataFromCoinGecko(string coinId, int days)
         {
-            
+                    
             var url = $"coins/{coinId}/ohlc?vs_currency=usd&days={days}";
             using var httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://api.coingecko.com/api/v3/")
             };
 
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("CoinHawkApp/1.0");
             var response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
