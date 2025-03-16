@@ -6,13 +6,15 @@ import { Router } from '@angular/router';
 import { SlickCarouselComponent, SlickCarouselModule } from 'ngx-slick-carousel';
 import { CommonModule } from '@angular/common';
 import { CoinNewsComponent } from './coin-news/coin-news.component';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-coin-news-list',
   imports: [
     CoinNewsComponent,
     SlickCarouselModule,
-    CommonModule
+    CommonModule,
+    MatIcon
   ],
   templateUrl: './coin-news-list.component.html',
   styleUrls: ['./coin-news-list.component.scss']
@@ -20,15 +22,15 @@ import { CoinNewsComponent } from './coin-news/coin-news.component';
 export class CoinNewsListComponent implements OnInit, AfterViewInit, AfterViewChecked {
   @ViewChild('slickModal') slickModal!: SlickCarouselComponent;
   news: NewsArticleDto[] = [];
-  isLoading: boolean = true;
   isSlickInitialized = false;
   slideConfig = {
-    slidesToShow: 3,
+    slidesToShow: 1,
     slidesToScroll: 1,
-    dots: true,
     infinite: true,
-    autoplay: false
-  };
+    arrows: false,
+    autoplay: true,
+    autoplaySpeed: 3000,
+  };  
   constructor(
     private snackBarService: SnackBarService,
     private coinNewsService: CoinNewsService,
@@ -48,8 +50,6 @@ export class CoinNewsListComponent implements OnInit, AfterViewInit, AfterViewCh
     (await this.coinNewsService.getFollowedCoinsNews()).subscribe({
       next: (response: NewsArticleDto[]) => {
         this.news = response;
-        console.log(this.news)
-        this.isLoading = false;
         setTimeout(() => {
           if (this.slickModal && this.slickModal.$instance) {
             this.slickModal.slickGoTo(0);
@@ -58,7 +58,6 @@ export class CoinNewsListComponent implements OnInit, AfterViewInit, AfterViewCh
       },
       error: (error: string) => {
         this.snackBarService.error('Error loading news: ' + error);
-        this.isLoading = false;
       }
     });
   }
