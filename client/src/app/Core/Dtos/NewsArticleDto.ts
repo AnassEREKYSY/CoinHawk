@@ -1,9 +1,11 @@
 import { SourceDto } from "./SourceDto";
 
 export interface NewsArticleDto {
-    Title: string;
-    Description: string ;
-    Url: string ;
-    Source: SourceDto;
-    PublishedAt: string ;
+    title: string;
+    description: string ;
+    url: string ;
+    source: SourceDto;
+    publishedAt: string ;
+    content: string ;
+    author: string ;
 }

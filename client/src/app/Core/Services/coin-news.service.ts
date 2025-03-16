@@ -12,11 +12,11 @@ export class CoinNewsService {
 
   constructor(private http: HttpClient,  private keycloakService: KeycloakService) {}
   
-    async getFollowedCoinsNews(): Promise<Observable<NewsArticleDto>> {
+    async getFollowedCoinsNews(): Promise<Observable<NewsArticleDto[]>> {
       const token = await this.keycloakService.getToken();
       const headers = new HttpHeaders({
         Authorization: `Bearer ${token}`,
       });
-      return this.http.get<NewsArticleDto>(`${environment.apiUrl}price-alerts/coin-news`,{ headers });
+      return this.http.get<NewsArticleDto[]>(`${environment.apiUrl}price-alerts/coin-news`,{ headers });
     }
 }

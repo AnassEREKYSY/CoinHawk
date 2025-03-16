@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Infrastructure.Dtos;
 using Infrastructure.IServices;
@@ -15,22 +16,37 @@ namespace Infrastructure.Services
         public async Task<NewsArticleDto> GetNewsForCoinAsync(string coinName)
         {
             var apiKey = _configuration["NewsAPI:ApiKey"];
-            var encodedCoinName = Uri.EscapeDataString(coinName);
-            var requestUrl = $"https://newsapi.org/v2/everything?q={encodedCoinName}&apiKey={apiKey}&sortBy=publishedAt";
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "YourAppName/1.0");
-            var response = await _httpClient.GetAsync(requestUrl);
+            string queryTerm = coinName.Contains(" ") 
+                ? $"\"{coinName}\" crypto" 
+                : $"{coinName} crypto";
+            var encodedQuery = Uri.EscapeDataString(queryTerm);
+            var requestUrl = $"https://newsapi.org/v2/everything?q={encodedQuery}&apiKey={apiKey}&sortBy=publishedAt&language=en&pageSize=5";
+            Console.WriteLine("request to send"+ requestUrl);
+
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Add("User-Agent", "YourAppName/1.0");
+
+            var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Failed to fetch news articles.");
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"NewsAPI error: {response.StatusCode} - {error}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<NewsApiResponse>();
-            var latestArticle = result?.Articles
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions 
+            { 
+                PropertyNameCaseInsensitive = true 
+            };
+
+            var result = JsonSerializer.Deserialize<NewsApiResponse>(responseContent, options);
+            var latestArticle = result?.Articles?
                 .OrderByDescending(article => article.PublishedAt)
-                .FirstOrDefault(); 
+                .FirstOrDefault();
             return latestArticle;
         }
+
 
     }
 

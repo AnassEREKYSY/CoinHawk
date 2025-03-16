@@ -8,6 +8,7 @@ import { TrendingCoinsComponent } from './Components/trending-coins/trending-coi
 import { ProfileComponent } from './Components/profile/profile.component';
 import { CoinsListComponent } from './Components/coins-list/coins-list.component';
 import { CoinDetailsComponent } from './Components/coin-details/coin-details.component';
+import { CoinNewsComponent } from './Components/coin-news-list/coin-news/coin-news.component';
 
 export const routes: Routes = [
     { path: '', component: LoginComponent },
@@ -20,4 +21,8 @@ export const routes: Routes = [
     { path: 'coin-details/:coinName', component: CoinDetailsComponent },
     { path: 'trending-coins', component: TrendingCoinsComponent },
     { path: 'profile', component: ProfileComponent },
+    { path: 'news-list', component: CoinNewsComponent },
+    { path: 'news-details/:data', component: CoinNewsComponent },
+
+
 ];

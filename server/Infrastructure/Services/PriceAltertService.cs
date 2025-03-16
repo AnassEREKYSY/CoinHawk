@@ -116,7 +116,7 @@ namespace Infrastructure.Services
             var alerts = await GetAllAlertsForUserAsync(token);
 
             var followedCoins = alerts
-                .Select(alert => alert.Coin.Name)
+                .Select(alert => alert.CoinName)
                 .Distinct()
                 .ToList();
 
@@ -124,8 +124,16 @@ namespace Infrastructure.Services
 
             foreach (var coin in followedCoins)
             {
-                var articles = await _newsService.GetNewsForCoinAsync(coin);
-                newsArticles.Add(articles);
+                var article = await _newsService.GetNewsForCoinAsync(coin);
+
+                if (article != null)
+                {
+                    newsArticles.Add(article);
+                }
+                else
+                {
+                    Console.WriteLine($"No news found for coin: {coin}");
+                }
             }
 
             return newsArticles;

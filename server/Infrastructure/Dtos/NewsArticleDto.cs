@@ -7,5 +7,7 @@ namespace Infrastructure.Dtos
         public string Url { get; set; }
         public SourceDto Source { get; set; }
         public string PublishedAt { get; set; }
+        public string Content { get; set; }
+        public string Author { get; set; }
     }
 }
