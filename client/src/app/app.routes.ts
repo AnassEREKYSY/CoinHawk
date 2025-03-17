@@ -22,7 +22,5 @@ export const routes: Routes = [
     { path: 'trending-coins', component: TrendingCoinsComponent },
     { path: 'profile', component: ProfileComponent },
     { path: 'news-list', component: CoinNewsComponent },
-    { path: 'news-details/:data', component: CoinNewsComponent },
-
 
 ];

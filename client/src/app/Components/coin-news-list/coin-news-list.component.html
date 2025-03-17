@@ -4,7 +4,7 @@
     <mat-icon>chevron_left</mat-icon>
   </button>
   <ngx-slick-carousel #slickModal class="carousel" [config]="slideConfig">
-    <div *ngFor="let newsItem of news" ngxSlickItem (click)="goToDetails(newsItem)">
+    <div *ngFor="let newsItem of news" ngxSlickItem>
       <app-coin-news [news]="newsItem"></app-coin-news>
     </div>
   </ngx-slick-carousel>

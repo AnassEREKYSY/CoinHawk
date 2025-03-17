@@ -2,7 +2,6 @@ import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, 
 import { NewsArticleDto } from '../../Core/Dtos/NewsArticleDto';
 import { SnackBarService } from '../../Core/Services/snack-bar.service';
 import { CoinNewsService } from '../../Core/Services/coin-news.service';
-import { Router } from '@angular/router';
 import { SlickCarouselComponent, SlickCarouselModule } from 'ngx-slick-carousel';
 import { CommonModule } from '@angular/common';
 import { CoinNewsComponent } from './coin-news/coin-news.component';
@@ -34,7 +33,6 @@ export class CoinNewsListComponent implements OnInit, AfterViewInit, AfterViewCh
   constructor(
     private snackBarService: SnackBarService,
     private coinNewsService: CoinNewsService,
-    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
   ngOnInit(): void {
@@ -60,9 +58,6 @@ export class CoinNewsListComponent implements OnInit, AfterViewInit, AfterViewCh
         this.snackBarService.error('Error loading news: ' + error);
       }
     });
-  }
-  goToDetails(data: NewsArticleDto): void {
-    this.router.navigate(['/news-details'], { state: data });
   }
   prev(): void {
     if (this.isSlickInitialized) {
