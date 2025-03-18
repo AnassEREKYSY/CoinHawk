@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    const postLogoutRedirectUri = 'http://localhost:4200/dashboard';
+    const postLogoutRedirectUri = 'http://localhost:5203/dashboard';
     return this.keycloakService.logout(postLogoutRedirectUri)
   }
 }

@@ -12,7 +12,7 @@ export function initializeKeycloak(keycloak: KeycloakService) {
         initOptions: {
           onLoad: 'login-required',
           checkLoginIframe: false,
-          redirectUri: 'http://localhost:4200/dashboard'
+          redirectUri: 'http://localhost:5203/dashboard'
         },
       });
       // .then(() => {
