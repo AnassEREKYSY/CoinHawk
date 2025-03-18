@@ -3,6 +3,21 @@
 CoinHawk is a cutting-edge cryptocurrency  platform that delivers real-time market insights to empower your investment decisions.
 Designed for traders of all levels.
 
+## Stack
+
+1. Frontend: Angular 19
+
+2. Backend: .NET 8 Web API
+
+3. Database: SQL Server (Dockerized)
+
+4. Cache: Redis (Dockerized)
+
+5. Authentication: KeyCloak (Dockerized)
+
+6. External APIs : CoinGeko and News APIs
+
+
 ### Features
 
 1. Login: 
@@ -22,18 +37,6 @@ Designed for traders of all levels.
 
 5. Coin Details: 
     ![CoinHawk Details](assets/Coin-Details.png)
-
-## Technology Stack
-
-1. Frontend: Angular 19
-
-2. Backend: .NET 8 Web API
-
-3. Database: SQL Server (Dockerized)
-
-4. Cache: Redis
-
-5. Authentication: KeyCloak
 
 ## Getting Started
 Follow these steps to set up and run the application locally.

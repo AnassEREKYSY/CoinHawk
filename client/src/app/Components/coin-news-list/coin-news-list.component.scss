@@ -2,7 +2,7 @@ $white: #fff;
 
 .news-container {
   margin: 0 auto;
-  width: 90%;
+  width: 95%;
   padding: 10px;
   background-color: transparent;
   position: relative;
@@ -10,8 +10,9 @@ $white: #fff;
 }
 
 .news-heading {
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 24px;
+  font-weight: 550;
+  letter-spacing: 1px;
   color: $white;
   text-align: start;
   margin-bottom: 20px;
@@ -34,18 +35,19 @@ $white: #fff;
 
 .carousel-btn {
   position: absolute;
-  top: 30%;
+  top: 23%;
   transform: translateY(-50%);
-  background-color: #acaaaa73;
+  background-color: transparent;
   border: none;
   cursor: pointer;
   z-index: 1;
   font-size: 2rem;
   color: $white;
+  margin-right: 10px;
 }
 
 .carousel-btn.prev {
-  right:30px;
+  right:20px;
 }
 
 .carousel-btn.next {
