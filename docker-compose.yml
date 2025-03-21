@@ -38,6 +38,19 @@ services:
     volumes:
       - "D:/My Data/Projects/CoinHawk/client/keycloak-theme:/opt/keycloak/themes/keycloak-theme:ro"
 
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5203:5203"
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:5203
+    depends_on:
+      - sql
+      - redis
+
+
 volumes:
   sql-data:
   redis-data:
