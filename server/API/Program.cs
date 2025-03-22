@@ -41,7 +41,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     // For local Docker Redis
-    options.Configuration = "localhost:6379";
+    options.Configuration = "redis:6379";
     options.InstanceName = "CoinHawk:";
 });
 
@@ -121,7 +121,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 app.UseCors("AllowFrontend");
 
