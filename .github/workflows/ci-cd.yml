@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Images with Compose
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -22,9 +22,8 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/coinhawk:latest
+      - name: Build Docker images via docker compose
+        run: docker compose -f docker-compose.yml build
+
+      - name: Push Docker images via docker compose
+        run: docker compose -f docker-compose.yml push
