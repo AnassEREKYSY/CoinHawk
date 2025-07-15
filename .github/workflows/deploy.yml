@@ -8,11 +8,10 @@ env:
 
 jobs:
   deploy-to-ovh:
-    name: Deploy to OVH
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH into OVH and deploy
+      - name: Deploy to OVH via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.OVH_HOST }}
