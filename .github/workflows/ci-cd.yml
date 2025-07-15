@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ghcr.io/anasserekysy/cryptotracker-server:latest
+  IMAGE_NAME: ghcr.io/anasserekysy/coinhawk-server:latest
 
 jobs:
   checkout-and-prepare:
