@@ -31,3 +31,22 @@ jobs:
         run: |
           IMAGE_NAME=${IMAGE_NAME} docker compose -f docker-compose.yml build
           IMAGE_NAME=${IMAGE_NAME} docker compose -f docker-compose.yml push
+
+  deploy-to-ovh:
+    name: Deploy to OVH
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: SSH into OVH and deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.OVH_HOST }}
+          username: ${{ secrets.OVH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ghcr.io/anasserekysy/coinhawk-server:latest
+            docker stop coinhawk || true
+            docker rm coinhawk || true
+            docker run -d --name coinhawk -p 5203:5203 ghcr.io/anasserekysy/coinhawk-server:latest
