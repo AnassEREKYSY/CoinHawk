@@ -39,6 +39,7 @@ services:
       - "D:/My Data/Projects/CoinHawk/client/keycloak-theme:/opt/keycloak/themes/keycloak-theme:ro"
 
   server:
+    image: ${IMAGE_NAME}
     build:
       context: ./server
       dockerfile: Dockerfile
