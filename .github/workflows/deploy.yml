@@ -1,0 +1,26 @@
+name: Manual Deploy to OVH
+
+on:
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ghcr.io/anasserekysy/coinhawk-server:latest
+
+jobs:
+  deploy-to-ovh:
+    name: Deploy to OVH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into OVH and deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.OVH_HOST }}
+          username: ${{ secrets.OVH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
+            docker pull $IMAGE_NAME
+            docker stop coinhawk || true
+            docker rm coinhawk || true
+            docker run -d --name coinhawk -p 5203:5203 $IMAGE_NAME
