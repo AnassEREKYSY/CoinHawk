@@ -44,23 +44,15 @@ jobs:
           host: ${{ secrets.OVH_HOST }}
           username: ${{ secrets.OVH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_NAME
           script: |
-            echo "Connected to OVH server: $(hostname)"
-            echo "Logging into GitHub Container Registry..."
+            echo "IMAGE_NAME = $IMAGE_NAME"
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
-
-            echo "Pulling Docker image: $IMAGE_NAME"
             docker pull $IMAGE_NAME
-
-            echo "Stopping previous container if it exists..."
             docker stop coinhawk || true
             docker rm coinhawk || true
-
-            echo "Running container..."
             docker run -d \
               --name coinhawk \
               -p 5203:5203 \
               --restart unless-stopped \
               $IMAGE_NAME
-
-            echo "Deployment complete!"
