@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Test SSH Key is Set
+        run: echo "SSH key present: ${{ secrets.SSH_PRIVATE_KEY != '' }}"
+
       - name: Deploy to OVH via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -18,8 +21,22 @@ jobs:
           username: ${{ secrets.OVH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "Connected to OVH server: $(hostname)"
+            echo "Logging into GitHub Container Registry..."
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
+
+            echo "Pulling Docker image: $IMAGE_NAME"
             docker pull $IMAGE_NAME
+
+            echo "Stopping previous container if it exists..."
             docker stop coinhawk || true
             docker rm coinhawk || true
-            docker run -d --name coinhawk -p 5203:5203 $IMAGE_NAME
+
+            echo "Running container..."
+            docker run -d \
+              --name coinhawk \
+              -p 5203:5203 \
+              --restart unless-stopped \
+              $IMAGE_NAME
+
+            echo "Deployment complete!"
