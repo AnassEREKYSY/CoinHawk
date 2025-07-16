@@ -46,7 +46,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: IMAGE_NAME
           script: |
-            echo "IMAGE_NAME = $IMAGE_NAME"
+            docker image prune -a -f
+            docker container prune -f
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
             docker pull $IMAGE_NAME
             docker stop coinhawk || true
